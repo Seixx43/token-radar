@@ -5,7 +5,7 @@
   'use strict';
   var R = window.RADAR;
   if (!R || !Array.isArray(R.rows)) {
-    document.getElementById('rows').innerHTML = '<tr><td colspan="9">No radar data was loaded.</td></tr>';
+    document.getElementById('rows').innerHTML = '<tr><td colspan="10">No radar data was loaded.</td></tr>';
     return;
   }
   var watch = {};
@@ -106,12 +106,15 @@
     countEl.textContent = list.length + ' of ' + R.rows.length + ' protocols shown' +
       (watchEl.checked ? ' (watchlist only)' : '') + '.';
     if (list.length === 0) {
-      rowsEl.innerHTML = '<tr><td colspan="9">No protocols match the current filters.</td></tr>';
+      rowsEl.innerHTML = '<tr><td colspan="10">No protocols match the current filters.</td></tr>';
       return;
     }
     rowsEl.innerHTML = list.map(function (r) {
       var badge = watch[r.slug] ? '<span class="badge">watchlist</span>' : '';
       var mult = r.base_multiple.toFixed(3) + (r.multiple_source === 'global' ? '*' : '');
+      var verdict = r.verdict === 'Worth farming' ? '<span class="verdict farm">Worth farming</span>'
+        : r.verdict === 'Farm small' ? '<span class="verdict small">Farm small</span>'
+        : '<span class="verdict wait">Wait</span>';
       return '<tr data-slug="' + esc(r.slug) + '">' +
         '<td class="num">' + r.rank + '</td>' +
         '<td><span class="pname">' + esc(r.name) + '</span>' + badge + '<br><span class="slug">' + esc(r.slug) + '</span></td>' +
@@ -122,6 +125,7 @@
         '<td class="num">' + age(r.age_days) + '</td>' +
         '<td class="num">' + mult + '</td>' +
         '<td class="num"><strong>' + usd(r.implied_value_usd) + '</strong></td>' +
+        '<td>' + verdict + '</td>' +
         '</tr>';
     }).join('');
   }
@@ -181,7 +185,7 @@
       modelRow('× launch odds ' + r.launch_odds.toFixed(2), usdFull(r.implied_value_usd), oddsNote) +
       '</tbody></table></div>' +
       '<h3>Farm plan</h3>' +
-      '<ol class="steps">' + r.farm_steps.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ol>' +
+      '<ol class="steps">' + r.farm_steps.map(function (s, i) { return '<li' + (i === 0 ? ' class="verdict-step"' : '') + '>' + esc(s) + '</li>'; }).join('') + '</ol>' +
       '<h3>Priced against: live-token ' + esc(cat(r.category)) + ' protocols</h3>' +
       peerRows;
     detailEl.hidden = false;

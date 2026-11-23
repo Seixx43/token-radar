@@ -114,6 +114,7 @@ export interface BoardRow {
     odds_band: string;
     age_days: number | null;
   };
+  verdict: 'Worth farming' | 'Farm small' | 'Wait';
   farm_steps: string[];
 }
 
@@ -135,6 +136,7 @@ export interface RadarRow {
   multiple_source: 'category' | 'global';
   launch_odds: number;
   odds_band: string;
+  verdict: 'Worth farming' | 'Farm small' | 'Wait';
   farm_steps: string[];
 }
 
@@ -403,7 +405,8 @@ export function buildBoard(snapshot: Snapshot, model: ModelConstants = MODEL): B
   const odds = launchOddsBands(snapshot);
   const scored = [...chosen.values()].map((p) => {
     const v = impliedValue(p, snapshot.as_of, multiples, odds, model);
-    return { p, v };
+    const plan = farmSteps(p, v.age, v.launchOdds, v.oddsBand, v.implied);
+    return { p, v, plan };
   });
   scored.sort((a, b) => b.v.implied - a.v.implied || (a.p.slug < b.p.slug ? -1 : a.p.slug > b.p.slug ? 1 : 0));
   return scored.map((s, i) => ({
@@ -429,7 +432,8 @@ export function buildBoard(snapshot: Snapshot, model: ModelConstants = MODEL): B
       odds_band: s.v.oddsBand,
       age_days: s.v.age,
     },
-    farm_steps: farmSteps(s.p, s.v.age).map(stepText),
+    verdict: s.plan.verdict,
+    farm_steps: s.plan.steps.map(stepText),
   }));
 }
 
@@ -490,13 +494,45 @@ function actionFor(p: SnapshotProtocol, capital: number, chain: string): string 
   return `Deposit $${capital} of USDC into ${name} on ${chain} and keep the position open.`;
 }
 
+/** The farm verdict's tiers: worth a full position, a small one, or waiting. */
+export type FarmVerdict = 'Worth farming' | 'Farm small' | 'Wait';
+
 /**
- * A protocol's farm plan: six steps, each an action with a cost and a time. The plan is derived
- * from the protocol's own record (category, chains, TVL, age), never from a hand-written list of
- * names. The weekly gas and the total gas over the hold are computed from the hold length, so the
- * plan states what the whole farm costs, not just one transaction.
+ * One protocol's farm verdict, from the model's own numbers: the launch odds and the gas the
+ * whole farm costs. The thresholds split the fitted odds bands (the top two bands sit at
+ * 0.61 and above, the bottom band at 0.21): high odds and cheap gas earn a full position; high
+ * odds on an expensive chain earn a small one; middling odds earn a small one; low odds earn
+ * a wait, whatever the cost — a launch that likely never comes is not a farm. The capital is a
+ * deposit, not a cost, so the verdict prices the gas, which is what the farmer actually spends.
  */
-export function farmSteps(p: SnapshotProtocol, age: number | null): FarmStep[] {
+export function verdictFor(odds: number, totalGas: number): FarmVerdict {
+  if (odds <= 0.21) return 'Wait';
+  if (odds >= 0.61 && totalGas <= 30) return 'Worth farming';
+  return 'Farm small';
+}
+
+/** A short dollar figure for the verdict sentence: $316M, $87M, $950K. */
+function usdShort(n: number): string {
+  if (n >= 1e9) return `$${(n / 1e9).toFixed(2)}B`;
+  if (n >= 1e6) return `$${Math.round(n / 1e6)}M`;
+  if (n >= 1e3) return `$${Math.round(n / 1e3)}K`;
+  return `$${Math.round(n)}`;
+}
+
+/**
+ * A protocol's farm plan: the verdict first, then six steps, each an action with a cost and a
+ * time. The plan is derived from the protocol's own record (category, chains, TVL, age) and
+ * the model's own numbers (launch odds, implied value), never from a hand-written list of
+ * names. The weekly gas and the total gas over the hold are computed from the hold length, so
+ * the plan states what the whole farm costs, not just one transaction.
+ */
+export function farmSteps(
+  p: SnapshotProtocol,
+  age: number | null,
+  odds: number,
+  oddsBand: string,
+  implied: number,
+): { steps: FarmStep[]; verdict: FarmVerdict } {
   const chain = chainOf(p);
   const capital = capitalFor(p);
   const hold = holdDaysFor(age);
@@ -504,38 +540,56 @@ export function farmSteps(p: SnapshotProtocol, age: number | null): FarmStep[] {
   const weeks = Math.max(1, Math.ceil(hold / 7));
   const totalGas = weeklyGas * weeks + (capital >= 150 ? 8 : 4);
   const action = actionFor(p, capital, chain);
-  return [
-    {
-      text: `Open a fresh wallet that holds only the funds you plan to farm, and write its seed phrase on paper, never in a screenshot.`,
-      cost: 'under $3 of gas for the first transaction',
-      time: '5 minutes',
-    },
-    {
-      text: action,
-      cost: `$${capital} of capital and about $${capital >= 150 ? 8 : 4} of gas`,
-      time: '15 minutes to set up',
-    },
-    {
-      text: `Do one qualifying action a week while you hold: a deposit, a borrow, a swap or a vote in ${p.name}.`,
-      cost: `about $${weeklyGas} of gas a week, about $${totalGas} of gas for the whole ${hold}-day farm`,
-      time: '10 minutes a week',
-    },
-    {
-      text: `Hold the position for at least ${hold} days, through ${weeks} weekly snapshots, before you touch it.`,
-      cost: `the $${capital} stays in the position`,
-      time: `${hold} days`,
-    },
-    {
-      text: `Before you withdraw, open ${p.name}'s own points or rewards page from its official site and claim only from the link it publishes.`,
-      cost: 'no fee to check, and never pay anyone to claim',
-      time: '10 minutes',
-    },
-    {
-      text: `Log the wallet, the dates and every transaction hash in a farm log, so you can repeat the position or unwind it later.`,
-      cost: 'nothing but the log',
-      time: '5 minutes',
-    },
-  ];
+  const verdict = verdictFor(odds, totalGas);
+  const value = usdShort(implied);
+  const verdictText =
+    verdict === 'Worth farming'
+      ? `Verdict: worth farming — launch odds ${odds} and implied value ${value}, for about $${totalGas} of gas over ${hold} days. Farm it with $${capital} and hold the full ${hold} days.`
+      : verdict === 'Farm small' && odds >= 0.61
+        ? `Verdict: farm small — launch odds ${odds} and implied value ${value}, but about $${totalGas} of gas over ${hold} days eats a small position; use $${capital} and no more.`
+        : verdict === 'Farm small'
+          ? `Verdict: farm small — launch odds ${odds} are a coin flip, so don't overcommit; about $${totalGas} of gas over ${hold} days for a $${capital} position, implied value ${value}.`
+          : `Verdict: wait — launch odds ${odds} in the ${oddsBand} band with no token, so don't lock capital here; check back in a few months instead.`;
+  return {
+    verdict,
+    steps: [
+      {
+        text: verdictText,
+        cost: `about $${totalGas} of gas for the whole farm`,
+        time: `${hold} days`,
+      },
+      {
+        text: `Open a fresh wallet that holds only the funds you plan to farm, and write its seed phrase on paper, never in a screenshot.`,
+        cost: 'under $3 of gas for the first transaction',
+        time: '5 minutes',
+      },
+      {
+        text: action,
+        cost: `$${capital} of capital and about $${capital >= 150 ? 8 : 4} of gas`,
+        time: '15 minutes to set up',
+      },
+      {
+        text: `Do one qualifying action a week while you hold: a deposit, a borrow, a swap or a vote in ${p.name}.`,
+        cost: `about $${weeklyGas} of gas a week, about $${totalGas} of gas for the whole ${hold}-day farm`,
+        time: '10 minutes a week',
+      },
+      {
+        text: `Hold the position for at least ${hold} days, through ${weeks} weekly snapshots, before you touch it.`,
+        cost: `the $${capital} stays in the position`,
+        time: `${hold} days`,
+      },
+      {
+        text: `Before you withdraw, open ${p.name}'s own points or rewards page from its official site and claim only from the link it publishes.`,
+        cost: 'no fee to check, and never pay anyone to claim',
+        time: '10 minutes',
+      },
+      {
+        text: `Log the wallet, the dates and every transaction hash in a farm log, so you can repeat the position or unwind it later.`,
+        cost: 'nothing but the log',
+        time: '5 minutes',
+      },
+    ],
+  };
 }
 
 /** The live-token protocols, by market cap, for the dashboard's Live token view. */
@@ -574,6 +628,7 @@ export function radarRow(row: BoardRow): RadarRow {
     multiple_source: row.model.multiple_source,
     launch_odds: row.model.launch_odds,
     odds_band: row.model.odds_band,
+    verdict: row.verdict,
     farm_steps: row.farm_steps,
   };
 }

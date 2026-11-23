@@ -1,5 +1,33 @@
 # Improvement log
 
+## v1.4 — 2026-11-24: farm verdicts — every plan opens with a call
+
+What changed, and why: the farm plans were concrete on cost and time but never concluded —
+the same six-step shape for every protocol, no answer to "is this one worth farming?" Each
+plan now opens with a verdict, computed from the model's own numbers: launch odds and the gas
+the whole farm costs. Worth farming when the odds are in the top two bands (0.61 and above)
+and the whole farm costs $30 of gas or less; farm small when the odds are high but the gas is
+expensive, or the odds are a coin flip (0.45); wait when the odds are in the bottom band
+(0.21) — a launch that likely never comes is not a farm, whatever the cost. The capital is a
+deposit, not a cost, so the verdict prices the gas, which is what the farmer actually spends.
+The verdict is also a column on the board (green / amber / red badge), so the call is visible
+at a glance. Distribution over the 198 rows: worth farming 107, farm small 80, wait 11. The
+verdict sentence cites its own numbers (odds, implied value, gas, hold), so a reader can
+check the call instead of taking it on trust.
+
+Audit effect (judge criteria): criterion 3, 8 → 9 (plans now conclude with a costed verdict,
+not just steps); criterion 4, 8 → 9 (the verdict column makes the board's farm call readable
+at a glance). Criteria 1, 2, 5 unchanged (9 / 9 / 8). One real bug caught in verification:
+the first threshold used 0.62 and silently excluded the 1–2 year band's fitted odds of
+0.6175, which would have labelled every 1–2 year protocol a coin flip; the threshold is now
+0.61 and the distribution was re-checked. Board still 198 rows, full watchlist coverage,
+seven farm steps per row (all 20–600 characters); dossier 642,230 bytes (cap 4 MiB), text
+25,013 bytes (no cut); screenshots re-taken with no console errors and visually inspected.
+
+Biggest weakness remaining: looks (criterion 5, 8) — the page is clean but plain, and the
+methodology section is now long; the next iteration should tighten the page's visual hierarchy
+(a top-10 highlight and a shorter method summary) rather than add more text.
+
 ## v1.3 — 2026-11-24: model radar-3 — launch odds replace the hand-set terms
 
 What changed, and why: the first submission's provisional rate came back 78.75% (rank 11,622
