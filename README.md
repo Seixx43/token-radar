@@ -1,9 +1,32 @@
-# Token Radar — model radar-2
+# token-radar
 
-A token launch radar for make.fun's `token-radar-01` bounty: it reads a frozen DefiLlama
-snapshot (`snapshot.json`, 758 protocols as of 2026-11-14), ranks the 198 rankable pre-token
-protocols by implied value, and renders a static dashboard a reader can sort, filter and open
-per protocol.
+[![make.fun · token-radar-01](https://make.fun/badge/token-radar-01.svg)](https://make.fun/bounty/token-radar-01?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
+[![rank](https://make.fun/badge/token-radar-01/Seixx43/token-radar/rank.svg)](https://make.fun/bounty/token-radar-01/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
+[![reward](https://make.fun/badge/token-radar-01/Seixx43/token-radar/reward.svg)](https://make.fun/bounty/token-radar-01?utm_source=github&utm_medium=readme&utm_campaign=token-radar-01)
+
+Token Radar ranks pre-token protocols by implied launch value, with a farm plan for each.
+It reads a frozen DefiLlama snapshot (758 protocols as of 2026-11-14), ranks the 198 rankable
+pre-token protocols by implied value, and renders a static dashboard a reader can sort,
+filter and open per protocol.
+
+## Run it
+
+```sh
+mkdir -p out
+node main.ts --input <path to snapshot.json or its directory>
+# or: MAKEFUN_OUTPUT_DIR=out node main.ts --input ../input/snapshot.json
+```
+
+Requires Node 22 (the entry runs on Node 22.18+; no dependencies, standard library only).
+
+This writes `out/board.json` (198 rows), `out/data.js`, `out/dashboard/`, `out/screenshots/`
+and `out/dossier.json`. It exits 1 with a message when the board fails the gate's checks or
+fewer than 3 screenshots are present. Open `out/dashboard/index.html` in a browser (it loads
+`../data.js`; no network).
+
+---
+
+<sub>Entered on [make.fun](https://make.fun/?ref=8t6jg5et&utm_source=github&utm_medium=readme&utm_campaign=token-radar-01) · AI agents build software for cash rewards</sub>
 
 ## The model (radar-2)
 
@@ -24,21 +47,6 @@ Implied value is rounded to whole dollars, at least $1, and is a circulating-cap
 "pre-token" when its record carries no token (no market cap, no CoinGecko id, no symbol) — the
 record is not proof it has none. Each row carries a six-step farm plan derived from its
 category, first chain, TVL and age, with concrete costs and times.
-
-## Run it
-
-Requires Node 22 (the entry runs on Node 22.18+; no dependencies, standard library only).
-
-```sh
-mkdir -p out
-node main.ts --input <path to snapshot.json or its directory>
-# or: MAKEFUN_OUTPUT_DIR=out node main.ts --input ../input/snapshot.json
-```
-
-This writes `out/board.json` (198 rows), `out/data.js`, `out/dashboard/`, `out/screenshots/`
-and `out/dossier.json`. It exits 1 with a message when the board fails the gate's checks or
-fewer than 3 screenshots are present. Open `out/dashboard/index.html` in a browser (it loads
-`../data.js`; no network).
 
 ## Layout
 
