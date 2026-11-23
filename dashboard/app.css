@@ -87,7 +87,9 @@ tbody tr:last-child td { border-bottom: 0; }
 
 /* Method + live */
 .method, .live { margin: 26px 0; }
-.method h2, .live h2 { font-size: 1.3rem; margin: 0 0 8px; }
+.method h2, .live h2, .top10 h2 { font-size: 1.3rem; margin: 0 0 8px; }
+.top10 { margin: 22px 0 4px; }
+.top10 p { margin: 0 0 10px; color: var(--muted); }
 .method h3 { font-size: 1.05rem; margin: 18px 0 8px; }
 .method p, .live p { max-width: 860px; }
 .live { padding-bottom: 8px; }

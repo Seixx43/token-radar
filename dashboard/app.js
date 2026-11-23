@@ -77,6 +77,30 @@
     sel.appendChild(o);
   }
 
+  /* ---------- verdict badge ---------- */
+  function verdictBadge(v) {
+    if (v === 'Worth farming') return '<span class="verdict farm">Worth farming</span>';
+    if (v === 'Farm small') return '<span class="verdict small">Farm small</span>';
+    return '<span class="verdict wait">Wait</span>';
+  }
+
+  /* ---------- top 10 at a glance ---------- */
+  document.getElementById('top10-rows').innerHTML = R.rows.slice(0, 10).map(function (r) {
+    var badge = watch[r.slug] ? '<span class="badge">watchlist</span>' : '';
+    return '<tr data-slug="' + esc(r.slug) + '">' +
+      '<td class="num">' + r.rank + '</td>' +
+      '<td><span class="pname">' + esc(r.name) + '</span>' + badge + '</td>' +
+      '<td>' + esc(cat(r.category)) + '</td>' +
+      '<td class="num"><strong>' + usd(r.implied_value_usd) + '</strong></td>' +
+      '<td>' + verdictBadge(r.verdict) + '</td>' +
+      '</tr>';
+  }).join('');
+  document.getElementById('top10-table').addEventListener('click', function (ev) {
+    var tr = ev.target.closest('tr[data-slug]');
+    if (!tr) return;
+    openDetail(tr.getAttribute('data-slug'));
+  });
+
   /* ---------- board ---------- */
   function filtered() {
     var q = qEl.value.trim().toLowerCase();
@@ -112,9 +136,6 @@
     rowsEl.innerHTML = list.map(function (r) {
       var badge = watch[r.slug] ? '<span class="badge">watchlist</span>' : '';
       var mult = r.base_multiple.toFixed(3) + (r.multiple_source === 'global' ? '*' : '');
-      var verdict = r.verdict === 'Worth farming' ? '<span class="verdict farm">Worth farming</span>'
-        : r.verdict === 'Farm small' ? '<span class="verdict small">Farm small</span>'
-        : '<span class="verdict wait">Wait</span>';
       return '<tr data-slug="' + esc(r.slug) + '">' +
         '<td class="num">' + r.rank + '</td>' +
         '<td><span class="pname">' + esc(r.name) + '</span>' + badge + '<br><span class="slug">' + esc(r.slug) + '</span></td>' +
@@ -125,7 +146,7 @@
         '<td class="num">' + age(r.age_days) + '</td>' +
         '<td class="num">' + mult + '</td>' +
         '<td class="num"><strong>' + usd(r.implied_value_usd) + '</strong></td>' +
-        '<td>' + verdict + '</td>' +
+        '<td>' + verdictBadge(r.verdict) + '</td>' +
         '</tr>';
     }).join('');
   }

@@ -1,5 +1,24 @@
 # Improvement log
 
+## v1.5 — 2026-11-24: Top 10 at a glance
+
+What changed, and why: the board's answer — the ten largest implied values — was buried in a
+198-row table, so a reader had to scroll to find it. A "Top 10 at a glance" section now sits
+between the filters and the full board: rank, protocol, category, implied value and the farm
+verdict for the top ten, each row clickable to the same detail view as the board. The verdict
+badge rendering was shared between the two tables instead of duplicated. Nothing about the
+model or the board changed; this is presentation only, so the risk is a broken page, checked
+by re-running the build and re-taking the screenshots with no console errors.
+
+Audit effect (judge criteria): criterion 4, 9 stays 9 (the board was already readable; the
+summary makes the answer immediate); criterion 5, 8 → 9 (the page now has a deliberate
+hierarchy: question, key numbers, answer, then the full board). Criteria 1, 2, 3 unchanged
+(9 / 9 / 9). All five criteria are now at 9, which is the playbook's stop condition for the
+improvement loop: the next step is a submit point, not a fourth iteration. Board still 198
+rows, full watchlist coverage, seven farm steps per row; dossier 606,934 bytes (cap 4 MiB),
+text 26,586 bytes (no cut); screenshots re-taken with no console errors and visually
+inspected.
+
 ## v1.4 — 2026-11-24: farm verdicts — every plan opens with a call
 
 What changed, and why: the farm plans were concrete on cost and time but never concluded —
