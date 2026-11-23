@@ -114,7 +114,11 @@
     watchlist itself passes that rule already, so the floor is untouched. The 7-day TVL change and
     the chain count are shown on the board as facts, but they are not model inputs: tested held-out
     on the 128 token-bearing protocols, neither moves the ranking, and neither does a fitted
-    log-linear regression, whose coefficients flip sign between folds.</p>
+    log-linear regression, whose coefficients flip sign between folds. The board also flags its
+    own shaky numbers: <span id="integrity-count"></span>, and each is marked on the board and
+    in its detail view, because an implied value built on a TVL that just jumped or collapsed
+    deserves a warning, not a quiet number — the flag never changes the ranking, since the
+    snapshot gives no evidence for how much to discount a moved TVL.</p>
     <h3>Launch odds by age</h3>
     <div class="tablewrap">
       <table id="odds">

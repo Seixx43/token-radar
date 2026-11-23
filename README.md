@@ -63,6 +63,12 @@ rank correlation, so the model keeps the median and spends its one extra term on
 odds, which the median cannot express. The 7-day change and the chain count are still shown
 on the board as facts, but they are not model inputs.
 
+The board also flags its own shaky numbers: 7 of the 198 rows moved more than 50% in 7 days
+(the largest, Shift DeFi, rose 4,448%), and each is marked on the board and in its detail
+view, because an implied value built on a TVL that just jumped or collapsed deserves a
+warning, not a quiet number. The flag never changes the ranking: the snapshot gives no
+evidence for how much to discount a moved TVL.
+
 ## Layout
 
 - `main.ts` — reads the snapshot, writes the board, data, dashboard, screenshots and dossier.

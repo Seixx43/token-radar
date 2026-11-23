@@ -53,6 +53,7 @@
   document.getElementById('global-mult').textContent = R.global_multiple.toFixed(3) +
     ' (median over ' + R.global_live_n + ' live-token protocols)';
   document.getElementById('source').textContent = 'Source: ' + R.source + '.';
+  document.getElementById('integrity-count').textContent = R.integrity_flagged + ' of ' + R.board_size + ' rows moved more than 50% in 7 days';
 
   /* ---------- controls ---------- */
   var qEl = document.getElementById('q');
@@ -142,7 +143,7 @@
         '<td>' + esc(cat(r.category)) + '</td>' +
         '<td>' + esc(r.chains.join(', ') || '—') + '</td>' +
         '<td class="num">' + usd(r.tvl_usd) + '</td>' +
-        '<td>' + pct(r.change_7d) + '</td>' +
+        '<td>' + pct(r.change_7d) + (r.integrity ? ' <span class="flag" title="' + esc(r.integrity) + '">!</span>' : '') + '</td>' +
         '<td class="num">' + age(r.age_days) + '</td>' +
         '<td class="num">' + mult + '</td>' +
         '<td class="num"><strong>' + usd(r.implied_value_usd) + '</strong></td>' +
@@ -199,6 +200,7 @@
       '<div><dt>Age</dt><dd>' + (r.age_days === null ? 'not listed' : r.age_days + ' days') + '</dd></div>' +
       '<div><dt>Listed</dt><dd>' + esc(r.listed_at || '—') + '</dd></div>' +
       '</dl>' +
+      (r.integrity ? '<p class="integrity">' + esc(r.integrity) + '</p>' : '') +
       '<h3>How the value is built</h3>' +
       '<div class="tablewrap"><table class="modeltable"><tbody>' +
       modelRow('TVL', usdFull(r.tvl_usd), 'the protocol’s locked value') +

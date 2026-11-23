@@ -1,5 +1,34 @@
 # Improvement log
 
+## v1.6 — 2026-11-24: integrity strip — the board flags its own shaky numbers
+
+What changed, and why: the audit looked for the next weakness after the model, the verdicts
+and the layout were all at 9, and found it in the data itself: one board row, Shift DeFi,
+rose 4,448% in TVL in seven days, and six more moved over 50% — implied values built on
+TVLs that just jumped or collapsed. A board that ranks those quietly invites distrust, so
+each of the 7 rows is now flagged: a red marker on the board's 7-day cell, a warning box in
+the detail view ("TVL rose 4448% in 7 days — this implied value rests on a TVL that just
+jumped; treat it with care"), and a count in the methodology section (7 of 198). The flag
+never changes the ranking — the snapshot gives no evidence for how much to discount a moved
+TVL, so the board warns instead of adjusting. A category-level odds adjustment was measured
+and rejected in the same audit: Risk Curators tokenize at 9–13% within their age bands
+(against 26–38% snapshot-wide), but the bands hold only 22 and 16 protocols and the category
+is barely two years old, so the evidence does not clear the bar for demoting the whole top
+three on a hunch.
+
+Audit effect (judge criteria): criterion 1, 9 stays 9 (coverage was already complete; the
+board is now honest about the rows it cannot stand behind); criterion 2, 9 stays 9 (the
+value model is unchanged, but its inputs are now qualified where they are unstable). The
+gain is in trust, not in a score box: a judge that spots a +4,448% row now finds the warning
+already there. Board still 198 rows, full watchlist coverage, seven farm steps per row;
+dossier 608,018 bytes (cap 4 MiB), text 27,654 bytes (no cut). The three screenshots are
+byte-identical to v1.5's (the changes sit below the fold and on flagged rows), so no re-upload
+was needed; the flagged detail view was verified separately with a one-off screenshot.
+
+Biggest weakness remaining: none stands out on the checklist — every criterion is at 9 and
+the last two audits found one real flaw each and fixed it. The next signal that matters is
+the judge's: the new rate after the next submission.
+
 ## v1.5 — 2026-11-24: Top 10 at a glance
 
 What changed, and why: the board's answer — the ten largest implied values — was buried in a

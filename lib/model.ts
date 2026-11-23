@@ -80,6 +80,9 @@ export const MODEL: ModelConstants = {
 /** The model's version label: the dashboard names it. */
 export const MODEL_VERSION = 'radar-3';
 
+/** A 7-day TVL move bigger than this is flagged: the implied value rests on a TVL that just jumped or collapsed. */
+export const INTEGRITY_MOVE_PCT = 50;
+
 /** How many live-token protocols the Live token view carries, by market cap. */
 export const LIVE_ROWS = 24;
 
@@ -115,6 +118,7 @@ export interface BoardRow {
     age_days: number | null;
   };
   verdict: 'Worth farming' | 'Farm small' | 'Wait';
+  integrity: string | null;
   farm_steps: string[];
 }
 
@@ -137,6 +141,7 @@ export interface RadarRow {
   launch_odds: number;
   odds_band: string;
   verdict: 'Worth farming' | 'Farm small' | 'Wait';
+  integrity: string | null;
   farm_steps: string[];
 }
 
@@ -183,6 +188,7 @@ export interface RadarData {
   global_live_n: number;
   multiples: CategoryMultiple[];
   launch_odds: LaunchOddsBand[];
+  integrity_flagged: number;
   rows: RadarRow[];
   live: LiveRow[];
 }
@@ -338,6 +344,20 @@ export function impliedValue(
   return { implied, baseMultiple: multiple, categoryLiveN: live_n, multipleSource: source, launchOdds, oddsBand: band, age };
 }
 
+/**
+ * One row's integrity flag, or null: a 7-day TVL move bigger than INTEGRITY_MOVE_PCT means
+ * the implied value rests on a TVL that just jumped or collapsed, so the row is flagged
+ * rather than quietly ranked. The flag never changes the ranking — the evidence does not say
+ * by how much to discount a moved TVL, so the board warns instead of adjusting.
+ */
+export function integrityFlag(protocol: SnapshotProtocol): string | null {
+  const ch = protocol.change_7d;
+  if (ch === null || Math.abs(ch) <= INTEGRITY_MOVE_PCT) return null;
+  const dir = ch > 0 ? 'rose' : 'fell';
+  const what = ch > 0 ? 'jumped' : 'collapsed';
+  return `TVL ${dir} ${Math.abs(ch).toFixed(0)}% in 7 days — this implied value rests on a TVL that just ${what}; treat it with care.`;
+}
+
 /** DefiLlama's version-marker rule: a name ending in a release is a pool of another protocol. */
 const VERSIONED = /\s(V\d+(\.\d+)?|v\d+(\.\d+)?|\d+\.\d+)$/;
 
@@ -433,6 +453,7 @@ export function buildBoard(snapshot: Snapshot, model: ModelConstants = MODEL): B
       age_days: s.v.age,
     },
     verdict: s.plan.verdict,
+    integrity: integrityFlag(s.p),
     farm_steps: s.plan.steps.map(stepText),
   }));
 }
@@ -629,6 +650,7 @@ export function radarRow(row: BoardRow): RadarRow {
     launch_odds: row.model.launch_odds,
     odds_band: row.model.odds_band,
     verdict: row.verdict,
+    integrity: row.integrity,
     farm_steps: row.farm_steps,
   };
 }
@@ -655,6 +677,7 @@ export function buildRadar(snapshot: Snapshot, model: ModelConstants = MODEL): {
     global_live_n: multiples.global.live_n,
     multiples: multiplesTable,
     launch_odds: launchOddsBands(snapshot),
+    integrity_flagged: board.filter((r) => r.integrity !== null).length,
     rows: board.map(radarRow),
     live,
   };
