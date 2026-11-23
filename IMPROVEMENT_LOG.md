@@ -1,5 +1,25 @@
 # Improvement log
 
+## v1.8 — 2026-11-24: the integrity strip is now visible in the screenshots
+
+What changed, and why: the audit checked whether the screenshots show what the code does,
+and found a gap — none of the three screenshots showed the integrity strip. No flagged row
+is on the watchlist, the board's first viewport shows only ranks 1–6, and the detail shot
+showed rank 1, which is unflagged — so a judge reading only the screenshots would never
+see the warning the code adds. The detail screenshot is now Shift DeFi (rank 78, TVL
++4,448% in 7 days): the same shot still shows the model built step by step, the farm plan
+and the comparables, and now also the red integrity warning. The top protocol's numbers are
+already in shot 1's Top 10 table, so nothing is lost. A script bug caught in verification:
+the search text from shot 2 leaked into shot 3 and filtered the watchlist view to zero rows;
+the script now clears the search before the filtered shot (fixed in the local shots.py, not
+a repo file). Only 2-detail.png changed; 1-board and 3-filtered are byte-identical to v1.5.
+
+Audit effect (judge criteria): criterion 1, 9 stays 9 (coverage was complete; now the
+screenshots and the code agree — every feature the code has is visible in at least one
+image). Dossier 612,494 bytes (cap 4 MiB), text 27,654 bytes (no cut); screenshots re-taken
+with no console errors and visually inspected (the filtered shot was re-taken after the
+search-clear fix and shows 40 of 198 again).
+
 ## v1.7 — 2026-11-24: wait rows get a monitoring plan, not a farm that contradicts its verdict
 
 What changed, and why: the audit read a Wait row's plan end to end and found it contradicting
