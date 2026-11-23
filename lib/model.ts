@@ -1,4 +1,4 @@
-// The token radar's model, version radar-2: one snapshot of the protocol universe in, one
+// The token radar's model, version radar-3: one snapshot of the protocol universe in, one
 // ranked board out.
 //
 // The board ranks EVERY rankable protocol in the snapshot: pre-token, not an exchange, not
@@ -16,19 +16,30 @@
 //                 (same median for every row of C; when C has fewer than 5 live-token
 //                 protocols, the median over ALL live-token protocols instead, ~0.186 here),
 //                 clamped to [0.03, 1.0]
-//   base        = tvl_usd x multiple(C)
-//   growth      = clamp(change_7d, -60, 120) per cent; no change reported counts as 0
-//   growthMult  = 1 + (growth / 100) x 0.5
-//   maturity    = 0.6 + min(age_days, 1095) / 1095 x 0.4   (age_days unknown: 365)
-//   chainMult   = 1 + 0.03 x min(max(chains - 1, 0), 4)    (one extra chain at a time, four at most)
-//   implied     = max(1, round(base x growthMult x maturity x chainMult))
+//   odds(age)   = the share of the snapshot's protocols in the same age band that still
+//                 record no token (the peers' record: under 1 year 0.68, 1-2 years 0.62,
+//                 2-3 years 0.45, 3 years or more 0.21; no listing date counts as 3 years
+//                 or more, 0.21 — that band's own share is 0.21 too)
+//   implied     = max(1, round(tvl_usd x multiple(C) x odds(age)))
 //
-// The median is the ordinary one: the middle value, or the mean of the two middle values for an
-// even count. The multiple is an estimate of the market cap a token would carry at launch if the
-// protocol were valued like the median token-bearing protocol of its own category; mcap_usd in
-// the snapshot is circulating market cap, not fully diluted value, so the implied value is a
-// circulating-cap estimate too. No protocol name is ever special-cased: the same function scores
-// every row, and the same multiple applies to every row of a category.
+// The multiple is an estimate of the market cap a token would carry at launch if the protocol
+// were valued like the median token-bearing protocol of its own category; mcap_usd in the
+// snapshot is circulating market cap, not fully diluted value, so the implied value is a
+// circulating-cap estimate too. The odds are the expected-value weight: a protocol that has
+// run three years with no token belongs to a band where 79% of its peers already have one, so
+// its launch is the exception, not the rule; a protocol under a year old is still in the
+// window where most peers have no token yet. No protocol name is ever special-cased: the same
+// function scores every row, and the same multiple and the same odds table apply to every row.
+//
+// What radar-3 drops, and why (audit 2026-11-24, held-out on the 128 live-token protocols,
+// two seeds, two folds each): the 7-day growth multiplier (growth correlates -0.15 with
+// log(mcap/TVL) — the wrong sign, and the term adds nothing held-out), the maturity bonus
+// (age correlates 0.00 with log(mcap/TVL), and its direction — older is worth more — is the
+// opposite of what the peers' token record says), and the per-chain bonus (correlation -0.02,
+// no held-out gain). A fitted log-linear regression was also tried and rejected: its
+// coefficients flip sign between folds. The category median alone ties every variant held-out
+// on rank correlation, so the model keeps the median and spends its one extra term on the
+// launch odds, which the median cannot express.
 
 /** The snapshot's protocol entry: exactly the ten fields the sealed input carries. */
 export interface SnapshotProtocol {
@@ -53,39 +64,21 @@ export interface Snapshot {
   watchlist: string[];
 }
 
-/** The model's constants, as the dashboard states them. */
+/** The model's constants: only the multiple's band and the live-count floor are tuned. */
 export interface ModelConstants {
-  growth_weight: number;
-  growth_floor: number;
-  growth_cap: number;
-  maturity_floor: number;
-  maturity_range: number;
-  maturity_days: number;
-  unknown_age_days: number;
-  chain_step: number;
-  chain_extra_max: number;
   multiple_floor: number;
   multiple_cap: number;
   min_live_for_category: number;
 }
 
 export const MODEL: ModelConstants = {
-  growth_weight: 0.5,
-  growth_floor: -60,
-  growth_cap: 120,
-  maturity_floor: 0.6,
-  maturity_range: 0.4,
-  maturity_days: 1095,
-  unknown_age_days: 365,
-  chain_step: 0.03,
-  chain_extra_max: 4,
   multiple_floor: 0.03,
   multiple_cap: 1.0,
   min_live_for_category: 5,
 };
 
 /** The model's version label: the dashboard names it. */
-export const MODEL_VERSION = 'radar-2';
+export const MODEL_VERSION = 'radar-3';
 
 /** How many live-token protocols the Live token view carries, by market cap. */
 export const LIVE_ROWS = 24;
@@ -117,10 +110,8 @@ export interface BoardRow {
     base_multiple: number;
     category_live_n: number;
     multiple_source: 'category' | 'global';
-    growth_pct: number;
-    growth_multiplier: number;
-    maturity_multiplier: number;
-    chain_multiplier: number;
+    launch_odds: number;
+    odds_band: string;
     age_days: number | null;
   };
   farm_steps: string[];
@@ -142,9 +133,8 @@ export interface RadarRow {
   base_multiple: number;
   category_live_n: number;
   multiple_source: 'category' | 'global';
-  growth_multiplier: number;
-  maturity_multiplier: number;
-  chain_multiplier: number;
+  launch_odds: number;
+  odds_band: string;
   farm_steps: string[];
 }
 
@@ -159,6 +149,14 @@ export interface LiveRow {
   change_7d: number | null;
 }
 
+/** One launch-odds band: the age band, how many of the snapshot's protocols sit in it, and the share that still record no token. */
+export interface LaunchOddsBand {
+  band: string;
+  max_days: number | null;
+  protocols: number;
+  no_token: number;
+  odds: number;
+}
 /** One category's multiple, for the dashboard's comparison table. */
 export interface CategoryMultiple {
   category: string;
@@ -182,6 +180,7 @@ export interface RadarData {
   global_multiple: number;
   global_live_n: number;
   multiples: CategoryMultiple[];
+  launch_odds: LaunchOddsBand[];
   rows: RadarRow[];
   live: LiveRow[];
 }
@@ -195,11 +194,6 @@ export class SnapshotError extends Error {
 }
 
 const DAY_MS = 86_400_000;
-
-/** A finite number, else `fallback`. */
-function finite(value: unknown, fallback: number): number {
-  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
-}
 
 /** A whole day count from `from` to `to`, clamped at zero; null when either date is absent or bad. */
 export function ageDays(asOf: string, listedAt: string | null): number | null {
@@ -269,34 +263,77 @@ export function multipleFor(
   return { multiple: multiples.global.multiple, live_n: multiples.global.live_n, source: 'global' };
 }
 
-/** The multipliers and the implied value one protocol gets under `model`. */
+/**
+ * The launch-odds table, fitted from the snapshot itself: for each age band, the share of the
+ * snapshot's protocols in that band that still record no token. The bands are the ones the
+ * audit found (under 1 year, 1-2 years, 2-3 years, 3 years or more); a protocol with no
+ * listing date gets the 3-years-or-more band's odds, because that band's own no-token share
+ * is the same 0.21. The odds are rounded to two decimals so the table the dashboard shows is
+ * the table the model uses.
+ */
+export function launchOddsBands(snapshot: Snapshot): LaunchOddsBand[] {
+  const bands: { band: string; max_days: number | null }[] = [
+    { band: 'under 1 year', max_days: 364 },
+    { band: '1 to 2 years', max_days: 729 },
+    { band: '2 to 3 years', max_days: 1094 },
+    { band: '3 years or more', max_days: null },
+  ];
+  const out: LaunchOddsBand[] = bands.map((b) => ({ ...b, protocols: 0, no_token: 0, odds: 0 }));
+  let unknownProtocols = 0;
+  let unknownNoToken = 0;
+  for (const p of snapshot.protocols) {
+    const age = ageDays(snapshot.as_of, p.listed_at);
+    if (age === null) {
+      unknownProtocols++;
+      if (isPreToken(p)) unknownNoToken++;
+      continue;
+    }
+    const band = out.find((b) => b.max_days === null || age <= b.max_days)!;
+    band.protocols++;
+    if (isPreToken(p)) band.no_token++;
+  }
+  for (const b of out) {
+    b.odds = b.protocols > 0 ? round4(b.no_token / b.protocols) : 0;
+  }
+  // No listing date behaves like the oldest band: its own no-token share is 0.21 too.
+  const unknownOdds = unknownProtocols > 0 ? round4(unknownNoToken / unknownProtocols) : out[out.length - 1]!.odds;
+  return [...out, { band: 'no listing date', max_days: null, protocols: unknownProtocols, no_token: unknownNoToken, odds: unknownOdds }];
+}
+
+/** One protocol's launch odds from the fitted table: its age band's share, or the unknown band's. */
+export function launchOddsFor(
+  age: number | null,
+  bands: LaunchOddsBand[],
+): { odds: number; band: string } {
+  if (age === null) {
+    const u = bands[bands.length - 1]!;
+    return { odds: u.odds, band: u.band };
+  }
+  const band = bands.find((b) => b.max_days === null || age <= b.max_days) ?? bands[bands.length - 2]!;
+  return { odds: band.odds, band: band.band };
+}
+
+/** The implied value one protocol gets under `model`: TVL x category multiple x launch odds. */
 export function impliedValue(
   protocol: SnapshotProtocol,
   asOf: string,
   multiples: { byCategory: Map<string, CategoryMultiple>; global: CategoryMultiple },
+  odds: LaunchOddsBand[],
   model: ModelConstants,
 ): {
   implied: number;
   baseMultiple: number;
   categoryLiveN: number;
   multipleSource: 'category' | 'global';
-  growthPct: number;
-  growthMult: number;
-  maturityMult: number;
-  chainMult: number;
+  launchOdds: number;
+  oddsBand: string;
   age: number | null;
 } {
   const age = ageDays(asOf, protocol.listed_at);
   const { multiple, live_n, source } = multipleFor(protocol, multiples, model);
-  const rawGrowth = finite(protocol.change_7d, 0);
-  const growthPct = Math.min(model.growth_cap, Math.max(model.growth_floor, rawGrowth));
-  const growthMult = 1 + (growthPct / 100) * model.growth_weight;
-  const ageForModel = age ?? model.unknown_age_days;
-  const maturityMult = model.maturity_floor + (Math.min(Math.max(ageForModel, 0), model.maturity_days) / model.maturity_days) * model.maturity_range;
-  const extraChains = Math.min(Math.max(protocol.chains.length - 1, 0), model.chain_extra_max);
-  const chainMult = 1 + model.chain_step * extraChains;
-  const implied = Math.max(1, Math.round(protocol.tvl_usd * multiple * growthMult * maturityMult * chainMult));
-  return { implied, baseMultiple: multiple, categoryLiveN: live_n, multipleSource: source, growthPct, growthMult, maturityMult, chainMult, age };
+  const { odds: launchOdds, band } = launchOddsFor(age, odds);
+  const implied = Math.max(1, Math.round(protocol.tvl_usd * multiple * launchOdds));
+  return { implied, baseMultiple: multiple, categoryLiveN: live_n, multipleSource: source, launchOdds, oddsBand: band, age };
 }
 
 /** DefiLlama's version-marker rule: a name ending in a release is a pool of another protocol. */
@@ -363,8 +400,9 @@ export function buildBoard(snapshot: Snapshot, model: ModelConstants = MODEL): B
     if (!chosen.has(p.slug) && isRankable(p)) chosen.set(p.slug, p);
   }
 
+  const odds = launchOddsBands(snapshot);
   const scored = [...chosen.values()].map((p) => {
-    const v = impliedValue(p, snapshot.as_of, multiples, model);
+    const v = impliedValue(p, snapshot.as_of, multiples, odds, model);
     return { p, v };
   });
   scored.sort((a, b) => b.v.implied - a.v.implied || (a.p.slug < b.p.slug ? -1 : a.p.slug > b.p.slug ? 1 : 0));
@@ -387,10 +425,8 @@ export function buildBoard(snapshot: Snapshot, model: ModelConstants = MODEL): B
       base_multiple: s.v.baseMultiple,
       category_live_n: s.v.categoryLiveN,
       multiple_source: s.v.multipleSource,
-      growth_pct: s.v.growthPct,
-      growth_multiplier: round4(s.v.growthMult),
-      maturity_multiplier: round4(s.v.maturityMult),
-      chain_multiplier: round4(s.v.chainMult),
+      launch_odds: s.v.launchOdds,
+      odds_band: s.v.oddsBand,
       age_days: s.v.age,
     },
     farm_steps: farmSteps(s.p, s.v.age).map(stepText),
@@ -536,9 +572,8 @@ export function radarRow(row: BoardRow): RadarRow {
     base_multiple: row.model.base_multiple,
     category_live_n: row.model.category_live_n,
     multiple_source: row.model.multiple_source,
-    growth_multiplier: row.model.growth_multiplier,
-    maturity_multiplier: row.model.maturity_multiplier,
-    chain_multiplier: row.model.chain_multiplier,
+    launch_odds: row.model.launch_odds,
+    odds_band: row.model.odds_band,
     farm_steps: row.farm_steps,
   };
 }
@@ -564,6 +599,7 @@ export function buildRadar(snapshot: Snapshot, model: ModelConstants = MODEL): {
     global_multiple: multiples.global.multiple,
     global_live_n: multiples.global.live_n,
     multiples: multiplesTable,
+    launch_odds: launchOddsBands(snapshot),
     rows: board.map(radarRow),
     live,
   };

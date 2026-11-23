@@ -9,11 +9,11 @@
 <body>
 <header class="masthead">
   <div class="wrap">
-    <p class="kicker">Token Radar &middot; model radar-2</p>
+    <p class="kicker">Token Radar &middot; model radar-3</p>
     <h1>Which pre-token protocol would be worth the most if it launched a token today?</h1>
     <p class="lede">Every protocol below records no token in the DefiLlama snapshot. Each one is scored by its
-    own figures — TVL, seven-day growth, age with no token, and how many chains it runs on — against
-    the median market-cap-to-TVL ratio of the token-bearing protocols in its own category. The board
+    own figures — TVL, the median market-cap-to-TVL ratio of the token-bearing protocols in its
+    own category, and the launch odds its age band earns from the peers' record. The board
     is a claim about value, not a prediction that a token is coming.</p>
     <dl class="stats" id="stats"></dl>
     <p class="formula" id="formula"></p>
@@ -71,15 +71,15 @@
 
   <section class="method" aria-label="How the model works">
     <h2>How the model works</h2>
-    <p>Implied value = TVL &times; category multiple &times; growth multiplier &times; maturity
-    multiplier &times; chain multiplier. The category multiple is the median
-    <span class="nowrap">mcap / TVL</span> of the token-bearing protocols in the same category (at least 5
-    of them, or the median over all token-bearing protocols, <span id="global-mult"></span>). The
-    multiple is clamped to 0.03–1.00, so no category's thin data can price a protocol at ten times
-    its TVL. Growth is the TVL change over 7 days, clamped to −60%…+120%, and moves the value by
-    half its size. Maturity rises from 0.60 for a brand-new protocol to 1.00 at three years; a
-    protocol with no listing date counts as one year old. Each chain beyond the first adds 3%, up
-    to four extra chains. Values are rounded to whole dollars.</p>
+    <p>Implied value = TVL &times; category multiple &times; launch odds. The category multiple is the
+    median <span class="nowrap">mcap / TVL</span> of the token-bearing protocols in the same category
+    (at least 5 of them, or the median over all token-bearing protocols, <span id="global-mult"></span>).
+    The multiple is clamped to 0.03–1.00, so no category's thin data can price a protocol at ten times
+    its TVL. The launch odds are the share of the snapshot's protocols in the same age band that
+    still record no token — the peers' record on whether a launch is still coming: under one year
+    most peers have no token yet, while at three years or more 79% already have one, so a protocol
+    that has run that long with no token is the exception. A protocol with no listing date takes the
+    oldest band's odds. Values are rounded to whole dollars.</p>
     <p>What this does <em>not</em> do: it does not predict whether or when a token is issued, and it
     does not use any name list — the same formula scores every row. Market cap in the snapshot is
     circulating market cap, not fully diluted value, so the implied value is a circulating-cap
@@ -88,7 +88,17 @@
     candidates and are left off the board: a protocol whose category is Bridge, Canonical Bridge,
     Liquid Staking, Liquid Restaking, Restaked BTC or CEX, whose name carries a whole word
     wrapped, staked or staking, or whose name begins with an exchange's name is not ranked. The
-    watchlist itself passes that rule already, so the floor is untouched.</p>
+    watchlist itself passes that rule already, so the floor is untouched. The 7-day TVL change and
+    the chain count are shown on the board as facts, but they are not model inputs: tested held-out
+    on the 128 token-bearing protocols, neither moves the ranking, and neither does a fitted
+    log-linear regression, whose coefficients flip sign between folds.</p>
+    <h3>Launch odds by age</h3>
+    <div class="tablewrap">
+      <table id="odds">
+        <thead><tr><th>Age band</th><th class="num">Protocols</th><th class="num">Still no token</th><th class="num">Launch odds</th></tr></thead>
+        <tbody id="odds-rows"></tbody>
+      </table>
+    </div>
     <h3>Category multiples</h3>
     <div class="tablewrap">
       <table id="multiples">
@@ -114,7 +124,7 @@
 
 <footer class="wrap">
   <p id="source"></p>
-  <p>Token Radar, model radar-2. Data: a frozen DefiLlama snapshot. Implied values are this
+  <p>Token Radar, model radar-3. Data: a frozen DefiLlama snapshot. Implied values are this
   dashboard's own estimates, not investment advice and not a prediction of a token launch.</p>
 </footer>
 <noscript><p class="noscript">This dashboard needs JavaScript: the board is rendered from the data file beside it.</p></noscript>

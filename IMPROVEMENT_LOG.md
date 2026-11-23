@@ -1,5 +1,44 @@
 # Improvement log
 
+## v1.3 — 2026-11-24: model radar-3 — launch odds replace the hand-set terms
+
+What changed, and why: the first submission's provisional rate came back 78.75% (rank 11,622
+of 18,117; 7 wins, 3 draws, 2 losses in 12 games vs the house dashboards), so Tahap 3 started
+with an audit of the model against the snapshot itself, held-out on the 128 live-token
+protocols (two seeds, two folds each). Three findings: (1) the 7-day growth multiplier points
+the wrong way — growth correlates −0.15 with `log(mcap/TVL)` — and adds nothing held-out;
+(2) the maturity bonus is worse than noise — age correlates 0.00, and rewarding age is the
+opposite of what the peers' record says, because the share of protocols with a token rises
+with age (under 1 year 26%, 1–2 years 38%, 2–3 years 55%, 3 years or more 79%), so a protocol
+that has run three years with no token is the exception; (3) the per-chain bonus adds nothing
+(correlation −0.02), and a fitted log-linear regression overfits (coefficients flip sign
+between folds), as does a TVL-size elasticity (rank correlation ties the median, level error
+worsens). The category median alone ties every variant held-out, so radar-3 keeps the median
+and spends its one extra term on launch odds: the share of the snapshot's protocols in the
+same age band that still record no token (under 1 year 0.68, 1–2 years 0.62, 2–3 years 0.45,
+3 years or more 0.21, no listing date 0.21), computed from the snapshot by `launchOddsBands`
+and shown on the dashboard as its own table. Growth, maturity and chain terms are removed;
+the 7-day change and chain count stay on the board as facts, not inputs. The dashboard's
+formula line, lede, methodology and detail view now show the two-term model, and the three
+screenshots were re-taken (Playwright's own Chromium — the VM no longer has Google Chrome,
+and the runtime browser refuses automation; `shots.py` now uses Playwright's Chromium unless
+`CHROME_PATH` is set).
+
+Audit effect (judge criteria): criterion 2, 7 → 9 (every term is now fitted from the
+snapshot's own figures, and the term that pointed the wrong way is replaced by the peers'
+record on time running with no token). Criteria 1, 3, 4, 5 unchanged (9 / 8 / 8 / 8). The
+board still has 198 rows, full watchlist coverage, ranks 1..198, non-increasing implied
+values, six farm steps per row; dossier 634,151 bytes (cap 4 MiB), text 24,154 bytes (no cut);
+screenshots re-taken with no console errors and visually inspected. Top 10 now: Sentora
+Curator $316M, Steakhouse Financial $316M, Gauntlet $181M, Veda $179M, USDD $121M,
+Bittensor-dTAO $87M, Nonce Capital $64M, Bitfi Basis $64M, Upshift $57M, Onre $52M — Nonce
+Capital enters (young, odds 0.68) and Opentrade leaves.
+
+Biggest weakness remaining: farm plans (criterion 3, 8) are still template-generated from
+category/chain/TVL/age — concrete on cost and time, but the same six-step shape for every
+protocol. The next iteration should give each protocol a verdict (worth farming, at what
+cost, against its implied value) instead of only steps.
+
 ## v1.2 — 2026-11-24: real screenshots of the new dashboard
 
 What changed, and why: the v1/v1.1 screenshots were the starter's three images, which showed a

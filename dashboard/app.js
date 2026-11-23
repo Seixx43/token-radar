@@ -48,7 +48,7 @@
     return '<div><dt>' + label + '</dt><dd>' + value + '</dd></div>';
   }
   document.getElementById('formula').textContent =
-    'implied = TVL × multiple(' + 'category' + ') × growth × maturity × chain   ·   model ' + R.model_version +
+    'implied = TVL × multiple(' + 'category' + ') × launch odds   ·   model ' + R.model_version +
     '   ·   snapshot ' + R.as_of;
   document.getElementById('global-mult').textContent = R.global_multiple.toFixed(3) +
     ' (median over ' + R.global_live_n + ' live-token protocols)';
@@ -146,11 +146,11 @@
     var tr = rowsEl.querySelector('tr[data-slug="' + slug + '"]');
     if (tr) tr.classList.add('sel');
     var base = r.tvl_usd * r.base_multiple;
-    var afterGrowth = base * r.growth_multiplier;
-    var afterMaturity = afterGrowth * r.maturity_multiplier;
     var multNote = r.multiple_source === 'category'
       ? 'median mcap / TVL of ' + r.category_live_n + ' live-token ' + (r.category || '') + ' protocols'
       : 'global median (fewer than 5 live-token ' + (r.category || 'protocols') + '), over ' + r.category_live_n + ' protocols';
+    var oddsNote = 'share of the snapshot’s protocols in the ' + r.odds_band + ' band that still record no token' +
+      (r.age_days === null ? ' (no listing date, so the oldest band’s share is used)' : ' (age ' + r.age_days + ' days)');
     var peers = R.live.filter(function (l) { return l.category === r.category; });
     var peerRows = peers.length === 0
       ? '<p>No protocol in the top-24 live set shares this category, which is why the global multiple is used.</p>'
@@ -178,9 +178,7 @@
       '<div class="tablewrap"><table class="modeltable"><tbody>' +
       modelRow('TVL', usdFull(r.tvl_usd), 'the protocol’s locked value') +
       modelRow('× category multiple ' + r.base_multiple.toFixed(3), usdFull(base), multNote) +
-      modelRow('× growth ' + r.growth_multiplier.toFixed(4), usdFull(afterGrowth), '7-day change ' + (r.change_7d === null ? 'not reported, counted as 0%' : r.change_7d.toFixed(1) + '%, clamped to −60…+120%')) +
-      modelRow('× maturity ' + r.maturity_multiplier.toFixed(4), usdFull(afterMaturity), 'age ' + (r.age_days === null ? 'unknown, counted as 365 days' : r.age_days + ' days') + ', 0.60 new to 1.00 at 3 years') +
-      modelRow('× chains ' + r.chain_multiplier.toFixed(4), usdFull(r.implied_value_usd), r.chains.length + ' chain' + (r.chains.length === 1 ? '' : 's') + ', +3% per extra chain up to 4') +
+      modelRow('× launch odds ' + r.launch_odds.toFixed(2), usdFull(r.implied_value_usd), oddsNote) +
       '</tbody></table></div>' +
       '<h3>Farm plan</h3>' +
       '<ol class="steps">' + r.farm_steps.map(function (s) { return '<li>' + esc(s) + '</li>'; }).join('') + '</ol>' +
@@ -197,6 +195,12 @@
   function modelRow(step, value, note) {
     return '<tr><td>' + esc(step) + '</td><td class="num">' + esc(value) + '</td><td>' + esc(note) + '</td></tr>';
   }
+
+  /* ---------- launch-odds table ---------- */
+  document.getElementById('odds-rows').innerHTML = R.launch_odds.map(function (o) {
+    return '<tr><td>' + esc(o.band) + '</td><td class="num">' + o.protocols + '</td>' +
+      '<td class="num">' + o.no_token + '</td><td class="num">' + o.odds.toFixed(2) + '</td></tr>';
+  }).join('');
 
   /* ---------- multiples table ---------- */
   document.getElementById('mult-rows').innerHTML = R.multiples.map(function (m) {
