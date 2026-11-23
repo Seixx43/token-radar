@@ -191,6 +191,8 @@ export interface RadarData {
   integrity_flagged: number;
   rows: RadarRow[];
   live: LiveRow[];
+  /** Every live-token protocol by category, so a detail view can show the peers its multiple comes from. */
+  peers: Record<string, LiveRow[]>;
 }
 
 /** Why the snapshot is not one this model can score. */
@@ -247,7 +249,7 @@ export function categoryMultiples(snapshot: Snapshot, model: ModelConstants = MO
     const sorted = [...ratios].sort((a, b) => a - b);
     const raw = median(sorted);
     const multiple = clampMultiple(raw, model);
-    byCategory.set(category, { category, live_n: ratios.length, multiple: round4(multiple), clamped: multiple !== round4(raw) });
+    byCategory.set(category, { category, live_n: ratios.length, multiple: round4(multiple), clamped: raw < model.multiple_floor || raw > model.multiple_cap });
   }
   const allRatios = live.map((p) => p.mcap_usd! / p.tvl_usd).sort((a, b) => a - b);
   const rawGlobal = median(allRatios);
@@ -658,6 +660,26 @@ export function farmSteps(
   };
 }
 
+/** Every live-token protocol grouped by category, by market cap: the peers a detail view shows, so the median it states can be checked from the rows it displays. Live-token here means the snapshot records a market cap — the same filter the multiples use, since a token with no recorded cap has no ratio to show. */
+export function categoryPeers(snapshot: Snapshot): Record<string, LiveRow[]> {
+  const out: Record<string, LiveRow[]> = {};
+  for (const p of snapshot.protocols
+    .filter((p) => p.mcap_usd !== null && p.category !== 'CEX')
+    .sort((a, b) => (b.mcap_usd ?? 0) - (a.mcap_usd ?? 0) || b.tvl_usd - a.tvl_usd)) {
+    const key = p.category ?? '(no category)';
+    (out[key] = out[key] ?? []).push({
+      slug: p.slug,
+      name: p.name,
+      category: p.category,
+      chains: p.chains,
+      tvl_usd: p.tvl_usd,
+      mcap_usd: p.mcap_usd,
+      change_7d: p.change_7d,
+    });
+  }
+  return out;
+}
+
 /** The live-token protocols, by market cap, for the dashboard's Live token view. */
 export function liveRows(snapshot: Snapshot): LiveRow[] {
   return snapshot.protocols
@@ -725,6 +747,7 @@ export function buildRadar(snapshot: Snapshot, model: ModelConstants = MODEL): {
     integrity_flagged: board.filter((r) => r.integrity !== null).length,
     rows: board.map(radarRow),
     live,
+    peers: categoryPeers(snapshot),
   };
   return { board, radar };
 }

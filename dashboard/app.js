@@ -177,9 +177,9 @@
       : 'global median (fewer than 5 live-token ' + (r.category || 'protocols') + '), over ' + r.category_live_n + ' protocols';
     var oddsNote = 'share of the snapshot’s protocols in the ' + r.odds_band + ' band that still record no token' +
       (r.age_days === null ? ' (no listing date, so the oldest band’s share is used)' : ' (age ' + r.age_days + ' days)');
-    var peers = R.live.filter(function (l) { return l.category === r.category; });
+    var peers = (R.peers && R.peers[r.category]) || [];
     var peerRows = peers.length === 0
-      ? '<p>No protocol in the top-24 live set shares this category, which is why the global multiple is used.</p>'
+      ? '<p>No live-token ' + esc(cat(r.category)) + ' protocol exists in the snapshot, so the global median is used.</p>'
       : '<div class="tablewrap"><table><thead><tr><th>Protocol</th><th class="num">TVL</th><th class="num">Market cap</th><th class="num">mcap / TVL</th></tr></thead><tbody>' +
         peers.map(function (l) {
           return '<tr><td><span class="pname">' + esc(l.name) + '</span><br><span class="slug">' + esc(l.slug) + '</span></td>' +

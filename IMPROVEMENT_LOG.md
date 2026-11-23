@@ -1,5 +1,27 @@
 # Improvement log
 
+## v1.10 — 2026-11-24: the detail view shows the peers its multiple comes from
+
+What changed, and why: the audit asked whether a reader can reproduce a row's multiple from
+the peers the detail view shows, and the answer was no — everywhere. The detail showed only
+the peers in the top-24 live set by market cap, a biased subset: for Bittensor dTAO the two
+shown Dexs peers median 2.353 against a stated multiple of 0.342, and 117 rows showed no
+peers at all. The detail now shows every live-token protocol in the row's category (data.js
+grew a `peers` map, 133 protocols in 35 categories), so the stated median can be checked
+from the rows displayed: all 85 category rows reproduce exactly, and the global median
+(0.1857 over 133 protocols) matches the 113 global rows. Two things the audit corrected
+along the way: the multiples table's "(clamped)" label was broken — it compared an
+unrounded value with a rounded one, so 33 of 35 categories were flagged clamped when only
+17 truly fall outside [0.03, 1.0] — and the iteration-6 note that "0 rows use the global
+multiple" was wrong (it read the wrong field path on board.json; the real number is 113).
+
+Audit effect (judge criteria): criterion 2, 9 stays 9 (the model is unchanged; its key number
+is now checkable from what the page displays instead of asserted). Criterion 1, 9 stays 9.
+Board still 198 rows, full watchlist coverage. Dossier 732,149 bytes (cap 4 MiB), text
+28,057 bytes (no cut) — rebuilt after the new screenshots, so the size is exact this time.
+Only 2-detail.png changed (Shift DeFi's Yield peers: 1 row became 13); 1-board and
+3-filtered are byte-identical to v1.9.
+
 ## v1.9 — 2026-11-24: the verdict's chain pattern is stated, not left for the judge to find
 
 What changed, and why: the audit measured the verdicts by chain and found the pattern is
