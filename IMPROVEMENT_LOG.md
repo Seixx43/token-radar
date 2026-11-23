@@ -1,5 +1,22 @@
 # Improvement log
 
+## v1.11 — 2026-11-24: the displayed numbers are the numbers the model uses
+
+What changed, and why: the audit recomputed a row's implied value from the numbers the
+dashboard displays, and it did not add up. The detail view showed the multiple to 3 decimals
+(0.121) and the odds to 2 (0.68) while the model uses 0.1206 and 0.675, so a reader checking
+Shift DeFi got $3,916,458 against a stated $3,874,809, and rank 1 was off by $1,793,120.
+Every number the model uses is now shown at full stored precision (4 decimals, no trailing
+zeros): the board's multiple column, the detail's model table, the multiples and odds tables,
+the global multiple, and each peer's mcap/TVL ratio. Recomputed over all 198 rows, the worst
+gap between a reader's arithmetic and the stated implied value is now $0. The README's
+global multiple is corrected the same way (0.186 → 0.1857).
+
+Audit effect (judge criteria): criterion 2, 9 stays 9 (the model is unchanged; its arithmetic
+is now checkable to the dollar from what the page prints). Dossier 731,716 bytes (cap 4 MiB),
+text 28,087 bytes (no cut). Only 2-detail.png changed; 1-board and 3-filtered are
+byte-identical to v1.10, because the board's multiple column sits below the first viewport.
+
 ## v1.10 — 2026-11-24: the detail view shows the peers its multiple comes from
 
 What changed, and why: the audit asked whether a reader can reproduce a row's multiple from

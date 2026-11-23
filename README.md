@@ -36,7 +36,7 @@ implied = TVL × multiple(category) × launch odds(age)
 
 - **multiple(category)** — the median `mcap_usd / tvl_usd` of the live-token protocols in the
   same category. When a category has fewer than 5 live-token protocols, the median over all
-  live-token protocols is used instead (0.186 here). Every multiple is clamped to [0.03, 1.0].
+  live-token protocols is used instead (0.1857 here). Every multiple is clamped to [0.03, 1.0].
   The same multiple applies to every protocol in a category; no protocol name is special-cased.
 - **launch odds(age)** — the share of the snapshot's protocols in the same age band that still
   record no token, fitted from the snapshot itself: under 1 year 0.68 (160 protocols, 108

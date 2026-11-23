@@ -21,6 +21,7 @@
     if (n >= 1e3) return '$' + (n / 1e3).toFixed(1) + 'K';
     return '$' + Math.round(n);
   }
+  function exact(n) { return String(Math.round(n * 10000) / 10000); }
   function usdFull(n) { return '$' + Math.round(n).toLocaleString('en-US'); }
   function pct(v) {
     if (v === null || v === undefined) return '<span class="num">—</span>';
@@ -50,7 +51,7 @@
   document.getElementById('formula').textContent =
     'implied = TVL × multiple(' + 'category' + ') × launch odds   ·   model ' + R.model_version +
     '   ·   snapshot ' + R.as_of;
-  document.getElementById('global-mult').textContent = R.global_multiple.toFixed(3) +
+  document.getElementById('global-mult').textContent = exact(R.global_multiple) +
     ' (median over ' + R.global_live_n + ' live-token protocols)';
   document.getElementById('source').textContent = 'Source: ' + R.source + '.';
   document.getElementById('integrity-count').textContent = R.integrity_flagged + ' of ' + R.board_size + ' rows moved more than 50% in 7 days';
@@ -136,7 +137,7 @@
     }
     rowsEl.innerHTML = list.map(function (r) {
       var badge = watch[r.slug] ? '<span class="badge">watchlist</span>' : '';
-      var mult = r.base_multiple.toFixed(3) + (r.multiple_source === 'global' ? '*' : '');
+      var mult = exact(r.base_multiple) + (r.multiple_source === 'global' ? '*' : '');
       return '<tr data-slug="' + esc(r.slug) + '">' +
         '<td class="num">' + r.rank + '</td>' +
         '<td><span class="pname">' + esc(r.name) + '</span>' + badge + '<br><span class="slug">' + esc(r.slug) + '</span></td>' +
@@ -185,7 +186,7 @@
           return '<tr><td><span class="pname">' + esc(l.name) + '</span><br><span class="slug">' + esc(l.slug) + '</span></td>' +
             '<td class="num">' + usd(l.tvl_usd) + '</td>' +
             '<td class="num">' + (l.mcap_usd === null ? '—' : usd(l.mcap_usd)) + '</td>' +
-            '<td class="num">' + (l.mcap_usd === null ? '—' : (l.mcap_usd / l.tvl_usd).toFixed(3)) + '</td></tr>';
+            '<td class="num">' + (l.mcap_usd === null ? '—' : exact(l.mcap_usd / l.tvl_usd)) + '</td></tr>';
         }).join('') + '</tbody></table></div>';
     detailEl.innerHTML =
       '<button class="close" type="button" id="detail-close">Close</button>' +
@@ -204,8 +205,8 @@
       '<h3>How the value is built</h3>' +
       '<div class="tablewrap"><table class="modeltable"><tbody>' +
       modelRow('TVL', usdFull(r.tvl_usd), 'the protocol’s locked value') +
-      modelRow('× category multiple ' + r.base_multiple.toFixed(3), usdFull(base), multNote) +
-      modelRow('× launch odds ' + r.launch_odds.toFixed(2), usdFull(r.implied_value_usd), oddsNote) +
+      modelRow('× category multiple ' + exact(r.base_multiple), usdFull(base), multNote) +
+      modelRow('× launch odds ' + exact(r.launch_odds), usdFull(r.implied_value_usd), oddsNote) +
       '</tbody></table></div>' +
       '<h3>Farm plan</h3>' +
       '<ol class="steps">' + r.farm_steps.map(function (s, i) { return '<li' + (i === 0 ? ' class="verdict-step"' : '') + '>' + esc(s) + '</li>'; }).join('') + '</ol>' +
@@ -226,17 +227,17 @@
   /* ---------- launch-odds table ---------- */
   document.getElementById('odds-rows').innerHTML = R.launch_odds.map(function (o) {
     return '<tr><td>' + esc(o.band) + '</td><td class="num">' + o.protocols + '</td>' +
-      '<td class="num">' + o.no_token + '</td><td class="num">' + o.odds.toFixed(2) + '</td></tr>';
+      '<td class="num">' + o.no_token + '</td><td class="num">' + exact(o.odds) + '</td></tr>';
   }).join('');
 
   /* ---------- multiples table ---------- */
   document.getElementById('mult-rows').innerHTML = R.multiples.map(function (m) {
     var used = m.live_n >= 5 ? 'category multiple' : 'too few live — global used instead';
     return '<tr><td>' + esc(m.category) + '</td><td class="num">' + m.live_n + '</td>' +
-      '<td class="num">' + m.multiple.toFixed(3) + (m.clamped ? ' (clamped)' : '') + '</td><td>' + used + '</td></tr>';
+      '<td class="num">' + exact(m.multiple) + (m.clamped ? ' (clamped)' : '') + '</td><td>' + used + '</td></tr>';
   }).join('') +
   '<tr><td><strong>All categories (global fallback)</strong></td><td class="num">' + R.global_live_n + '</td>' +
-  '<td class="num"><strong>' + R.global_multiple.toFixed(3) + '</strong></td><td>used when a category has fewer than 5 live protocols</td></tr>';
+  '<td class="num"><strong>' + exact(R.global_multiple) + '</strong></td><td>used when a category has fewer than 5 live protocols</td></tr>';
 
   /* ---------- live-token table ---------- */
   document.getElementById('live-rows').innerHTML = R.live.map(function (l) {
@@ -244,7 +245,7 @@
       '<td>' + esc(cat(l.category)) + '</td>' +
       '<td class="num">' + usd(l.tvl_usd) + '</td>' +
       '<td class="num">' + (l.mcap_usd === null ? '—' : usd(l.mcap_usd)) + '</td>' +
-      '<td class="num">' + (l.mcap_usd === null ? '—' : (l.mcap_usd / l.tvl_usd).toFixed(3)) + '</td>' +
+      '<td class="num">' + (l.mcap_usd === null ? '—' : exact(l.mcap_usd / l.tvl_usd)) + '</td>' +
       '<td>' + pct(l.change_7d) + '</td></tr>';
   }).join('');
 
