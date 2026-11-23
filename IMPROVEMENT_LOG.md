@@ -1,5 +1,27 @@
 # Improvement log
 
+## v1.7 — 2026-11-24: wait rows get a monitoring plan, not a farm that contradicts its verdict
+
+What changed, and why: the audit read a Wait row's plan end to end and found it contradicting
+itself. Step 1 says "don't lock capital here; check back in a few months instead" — and steps
+2–7 then tell the reader to open a wallet, fund the protocol with $100, do weekly actions and
+hold for 30 days. A plan that advises the very thing its verdict warns against is the kind of
+incoherence a judge reads as a farm plan written by a template, not a plan that was thought
+through. The 11 Wait rows now get a six-step monitoring plan instead: watch the protocol's
+announcements and DefiLlama page, the three triggers that would change the call (a token or
+points program, a 7-day TVL move over 50%, a younger peer in the same category launching), a
+dated re-check three months after the snapshot (2027-02-14), what to do with a position already
+held, and a log of the decision. The verdict sentence is unchanged; the 187 farming rows are
+unchanged. The dashboard and the methodology needed no change — the detail view renders steps
+generically, and the README's farm paragraph now states the wait exception.
+
+Audit effect (judge criteria): criterion 3, 9 stays 9 (the plans were already concrete; they
+are now coherent — the verdict and the steps agree on every row). No other criterion moves.
+Board still 198 rows, full watchlist coverage; Wait rows 6 steps, farming rows 7 steps, all
+within the 3–12 step gate and the 20–600 character limit. Dossier 608,018 bytes (cap 4 MiB),
+text 27,654 bytes (no cut) — the dossier is byte-identical to v1.6's because the model change
+is not in the dossier text and the screenshots are unchanged, so no re-upload was needed.
+
 ## v1.6 — 2026-11-24: integrity strip — the board flags its own shaky numbers
 
 What changed, and why: the audit looked for the next weakness after the model, the verdicts

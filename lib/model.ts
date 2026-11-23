@@ -425,7 +425,7 @@ export function buildBoard(snapshot: Snapshot, model: ModelConstants = MODEL): B
   const odds = launchOddsBands(snapshot);
   const scored = [...chosen.values()].map((p) => {
     const v = impliedValue(p, snapshot.as_of, multiples, odds, model);
-    const plan = farmSteps(p, v.age, v.launchOdds, v.oddsBand, v.implied);
+    const plan = farmSteps(p, v.age, v.launchOdds, v.oddsBand, v.implied, snapshot.as_of);
     return { p, v, plan };
   });
   scored.sort((a, b) => b.v.implied - a.v.implied || (a.p.slug < b.p.slug ? -1 : a.p.slug > b.p.slug ? 1 : 0));
@@ -553,6 +553,7 @@ export function farmSteps(
   odds: number,
   oddsBand: string,
   implied: number,
+  asOf: string,
 ): { steps: FarmStep[]; verdict: FarmVerdict } {
   const chain = chainOf(p);
   const capital = capitalFor(p);
@@ -571,6 +572,50 @@ export function farmSteps(
         : verdict === 'Farm small'
           ? `Verdict: farm small — launch odds ${odds} are a coin flip, so don't overcommit; about $${totalGas} of gas over ${hold} days for a $${capital} position, implied value ${value}.`
           : `Verdict: wait — launch odds ${odds} in the ${oddsBand} band with no token, so don't lock capital here; check back in a few months instead.`;
+  // A wait is a monitoring plan, not a farm: the steps must not tell the reader to do the
+  // very thing the verdict warns against. So a Wait row gets no wallet, no deposit, no weekly
+  // actions and no hold — it gets a watch, the triggers that would change the call, a dated
+  // re-check, what to do with a position already held, and a log of the decision.
+  if (verdict === 'Wait') {
+    const recheck = new Date(`${asOf}T00:00:00Z`);
+    recheck.setUTCMonth(recheck.getUTCMonth() + 3);
+    const recheckDate = recheck.toISOString().slice(0, 10);
+    return {
+      verdict,
+      steps: [
+        {
+          text: verdictText,
+          cost: 'nothing to spend — no farm is running',
+          time: `re-check on ${recheckDate}`,
+        },
+        {
+          text: `Watch ${p.name}'s official announcements and its DefiLlama page for a token or points program; a launch announcement is the only event that changes this call.`,
+          cost: 'nothing to watch',
+          time: '5 minutes a week',
+        },
+        {
+          text: `Re-run the call if one of three things happens: the protocol announces a token or points program, its TVL moves more than 50% in a week, or a younger protocol in the same category launches — any of those is new evidence, not a reason to farm now.`,
+          cost: 'nothing',
+          time: '5 minutes when it happens',
+        },
+        {
+          text: `Set a reminder for ${recheckDate}, three months after the snapshot, to re-check the launch odds and the board; if the odds band has moved, the verdict moves with it.`,
+          cost: 'nothing to set',
+          time: '5 minutes to set',
+        },
+        {
+          text: `If you already hold a position in ${p.name}, do not add to it on this call; keep what you have, note the entry date, and unwind it on the re-check date if nothing has changed.`,
+          cost: 'nothing to add',
+          time: '10 minutes to review',
+        },
+        {
+          text: `Log the decision — the odds, the band and today's date — in a farm log, so the re-check in three months compares like with like instead of starting from memory.`,
+          cost: 'nothing but the log',
+          time: '5 minutes',
+        },
+      ],
+    };
+  }
   return {
     verdict,
     steps: [

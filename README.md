@@ -48,10 +48,14 @@ implied = TVL × multiple(category) × launch odds(age)
 Implied value is rounded to whole dollars, at least $1, and is a circulating-cap estimate:
 `mcap_usd` in the snapshot is circulating market cap, not fully diluted value. A protocol is
 "pre-token" when its record carries no token (no market cap, no CoinGecko id, no symbol) — the
-record is not proof it has none. Each row carries a seven-step farm plan — a verdict first
+record is not proof it has none. Each row carries a farm plan that opens with a verdict
 (worth farming, farm small, or wait, from the launch odds and the gas the whole farm costs),
-then six steps — derived from its category, first chain, TVL and age, with concrete costs
-and times.
+then six steps derived from its category, first chain, TVL and age, with concrete costs and
+times. A wait is not a farm with a different label: the 11 wait rows get a monitoring plan
+instead — watch for a token or points program, the three triggers that would change the call,
+a dated re-check three months after the snapshot, what to do with a position already held,
+and a log of the decision — because a plan that says "don't lock capital here" and then tells
+the reader to deposit would contradict its own verdict.
 
 Why the model has only these two terms: every term is fitted from the snapshot, and every
 term that was tried and failed is left out. Tested held-out on the 128 live-token protocols
