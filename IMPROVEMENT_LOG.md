@@ -1,5 +1,26 @@
 # Improvement log
 
+## v1.9 — 2026-11-24: the verdict's chain pattern is stated, not left for the judge to find
+
+What changed, and why: the audit measured the verdicts by chain and found the pattern is
+absolute: all 57 Ethereum rows are "Farm small" (56) or "Wait" (1) — none earns "Worth
+farming" — while Solana is 18 of 21 worth farming and Monad, Stellar, Flare, Ink and Arc are
+100%. The cause is the gas table plus the $30 threshold: a weekly action costs about $6 on
+Ethereum, so even the shortest farm runs about $34 of gas against a $50–$250 position, while
+the same farm on a cheap chain costs $9–$26. The numbers are stated as approximate and the
+outcome is defensible — gas is part of a farm's cost, and the #1 protocol (Sentora, Ethereum,
+"Farm small") sits next to #2 (Steakhouse, Base, "Worth farming") at the same odds and the
+same implied value, differing only by chain — but an unexplained pattern that stark reads as
+a bug to a reader who spots it. The lede and the README now state it plainly: the top verdict
+is reserved for farms where the gas does not eat the position. Changing the threshold or the
+gas table instead was rejected: both numbers are guesses with no evidence in the snapshot,
+so moving them would trade one arbitrary boundary for another.
+
+Audit effect (judge criteria): criterion 3, 9 stays 9 (the verdicts were already priced on
+gas; now the reasoning is visible in the first paragraph a reader sees). Dossier 612,921
+bytes (cap 4 MiB), text 28,077 bytes (no cut). All three screenshots changed — the lede grew
+by four lines — and were re-taken with no console errors and visually inspected.
+
 ## v1.8 — 2026-11-24: the integrity strip is now visible in the screenshots
 
 What changed, and why: the audit checked whether the screenshots show what the code does,
