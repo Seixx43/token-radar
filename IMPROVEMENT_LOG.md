@@ -1,5 +1,34 @@
 # Improvement log
 
+## v1.18 — 2026-11-24: the masthead shows the board at a glance (iteration 16)
+
+What changed, and why: the user asked us to push harder on the rank (v1.13: 75.67%,
+rank 12,467 of 18,367). Two audits ran. First, the growth term was re-tested three
+sharper ways, because the judge's criterion 2 names 7-day growth explicitly and our
+model ignores it: a fitted log-linear regression on the 95 token-bearing protocols
+with a growth figure (adding 7-day growth lifts R² only from 0.17 to 0.18, and a
+50-point jump in 7-day growth moves the value by about 1%), within-category
+correlations (pooled −0.04), and growth against tokenization within every age band
+(all near zero). All three agree: growth carries no usable signal, so no growth
+term was added — adding one would be fitting the judge, not the data. The
+methodology now states these numbers instead of the older held-out wording.
+Second, a visual review of the three screenshots found the real weakness: the
+masthead's lede was nine lines of dense prose, so the board screenshot showed
+only four Top 10 rows at the fold — the judge meets an essay before it meets
+the board. The lede is now four lines (the no-token fact, the formula in words,
+the verdict logic, the claim-not-a-prediction line); the displaced sentences were
+already in the methodology below the fold, so nothing was lost. Shots 1 and 3
+re-taken: the board shot now shows six Top 10 rows at the fold. Shot 2
+re-taken too (rendering variance only — its content is unchanged). Board
+unchanged (198 rows). Dossier 620,855 bytes, text 30,869 bytes.
+
+Audit effect (judge criteria): criterion 4 (readable at a glance), 9 stays 9, and
+criterion 5 (looks made) is stronger — the first screen now shows the ranking
+instead of the explanation of it. Criterion 2 stays 9: the growth rejection is
+now documented with three independent measurements. This is the first
+improvement since v1.16 — the playbook's submit point (3–5 improvements) is not
+reached yet.
+
 ## v1.17 — 2026-11-24: the ranking is shown robust to the odds' noise (iteration 14)
 
 What changed, and why: the iteration-14 audit asked the one question the held-out tests
