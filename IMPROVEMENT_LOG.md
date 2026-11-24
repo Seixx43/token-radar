@@ -1,5 +1,29 @@
 # Improvement log
 
+## v1.15 — 2026-11-24: the weekly farm action is tailored to the category (iteration 12)
+
+What changed, and why: step 4 of every farm plan used to say the same generic line for
+all 187 farming rows — "a deposit, a borrow, a swap or a vote" — true for all of them
+and specific to none, while step 3 (the deposit) was already tailored to the category.
+The judge's third criterion weighs concrete steps with cost and time, and the weekly
+action is the step the farmer repeats most. A new weeklyActionFor() in lib/model.ts
+uses the same category map as the deposit step: lending rows borrow or repay weekly,
+DEX rows swap in the deepest pool, vault rows claim the yield and put it back in,
+bridges bridge, staking rows claim rewards, perpetuals adjust the position, and so on
+(13 category branches plus the generic fallback for categories with no specific action).
+The cost and time of the step are unchanged (about $1–$6 of gas a week, 10 minutes).
+Verified: all 198 rows, no step outside the 20–600 character gate range, no doubled
+wording — the first draft had "once once a week" in the stable branch, caught by the
+check and fixed before anything was pushed. The board's ranking is untouched; only the
+farm-step text changed. Shot 2 (Shift DeFi) now shows step 4 as "claim the yield from
+Shift DeFi's vault and put it back in once a week"; shots 1 and 3 are byte-identical to
+v1.14. Dossier 656,797 bytes, text 30,198 bytes.
+
+Audit effect (judge criteria): criterion 3, 9 stays 9 (the plans were already costed and
+timed; now the repeated step is also specific to the protocol being farmed). This is the
+second improvement since v1.13 — the playbook's submit point (3–5 improvements) is not
+reached yet.
+
 ## v1.14 — 2026-11-24: the Top 10 follows the filters (iteration 11)
 
 What changed, and why: the v1.13 rate came in at 75.67% (rank 12,467 of 18,367; 6W/4D/2L),

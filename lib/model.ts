@@ -517,6 +517,29 @@ function actionFor(p: SnapshotProtocol, capital: number, chain: string): string 
   return `Deposit $${capital} of USDC into ${name} on ${chain} and keep the position open.`;
 }
 
+/** The weekly qualifying action, in the words a farmer can follow: the same category
+    map as actionFor, so the thing done every week is the thing the protocol actually
+    does, not a generic list. Step 4 used to say "a deposit, a borrow, a swap or a vote"
+    for every protocol — true for all of them and specific to none. */
+function weeklyActionFor(p: SnapshotProtocol): string {
+  const c = (p.category ?? '').toLowerCase();
+  const name = p.name;
+  if (c.includes('lend') || c.includes('cdp') || c.includes('collateral')) return `make one small borrow or repayment on ${name}`;
+  if (c.includes('dex') || c.includes('leveraged farm')) return `make one small swap in ${name}'s deepest pool`;
+  if (c.includes('yield') || c.includes('farm') || c.includes('allocator') || c.includes('curator')) return `claim the yield from ${name}'s vault and put it back in`;
+  if (c.includes('bridge') || c.includes('cross chain')) return `bridge a small amount through ${name}`;
+  if (c.includes('staking') || c.includes('restak')) return `claim the staking rewards from ${name}`;
+  if (c.includes('perpetual') || c.includes('derivative') || c.includes('options')) return `adjust the position on ${name} with one small trade`;
+  if (c.includes('prediction')) return `take one position in a still-open market on ${name}`;
+  if (c.includes('stable')) return `move the stable asset through ${name}`;
+  if (c.includes('rwa')) return `reinvest the yield ${name} pays`;
+  if (c.includes('insurance')) return `check the cover from ${name} and renew it if it lapses`;
+  if (c.includes('payment') || c.includes('card')) return `route one payment through ${name}`;
+  if (c.includes('index')) return `rebalance the ${name} index holding`;
+  if (c.includes('launchpad')) return `vote in one of ${name}'s sales or polls`;
+  return `do one transaction in ${name} — a deposit, a swap or a vote`;
+}
+
 /** The farm verdict's tiers: worth a full position, a small one, or waiting. */
 export type FarmVerdict = 'Worth farming' | 'Farm small' | 'Wait';
 
@@ -637,7 +660,7 @@ export function farmSteps(
         time: '15 minutes to set up',
       },
       {
-        text: `Do one qualifying action a week while you hold: a deposit, a borrow, a swap or a vote in ${p.name}.`,
+        text: `While you hold, ${weeklyActionFor(p)} once a week.`,
         cost: `about $${weeklyGas} of gas a week, about $${totalGas} of gas for the whole ${hold}-day farm`,
         time: '10 minutes a week',
       },
