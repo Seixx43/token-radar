@@ -1,5 +1,33 @@
 # Improvement log
 
+## v1.19 — 2026-11-24: dead tokens are out of the comparables (iteration 18, model radar-4)
+
+What changed, and why: the user asked us to wait and find the 3rd improvement before
+submitting again. The audit tested a shrinkage estimator for the category multiple
+(leave-one-out on the live-token protocols): the pure global median predicts a
+protocol's mcap/TVL at least as well as any category median or shrinkage weight
+(RMSE 2.29 vs 2.38 for the current hard rule), but the paired test is not significant
+(t = 1.34), so the category multiple stays — changing the model on that evidence would
+be chasing noise, the same trap as the growth term. The same audit found the real
+problem instead: 14 protocols record a token but a market cap of zero or less — dead
+tokens, Multichain among them — and they were counted as comparables. A zero is not a
+market value: counting them drags the global median from 0.2460 to 0.1857 and the Bridge
+median from 0.5567 to 0.0884 on the strength of tokens worth nothing. The multiples
+(and the detail views' peer lists, which must reproduce them) now count only
+protocols whose recorded market cap is positive: 133 live-token protocols become 119.
+The top 10 is the same ten protocols (only ranks 7 and 8 swap, BitFi Basis and Nonce
+Capital), with higher values (Sentora $316M → $419M); 171 of 198 rows change rank, 79
+by 5 places or more. The cleaning leaves the held-out error unchanged (leave-one-out
+RMSE 2.38 either way), and every category row's peers still reproduce its median
+exactly (76 of 76, 0 mismatches). All three screenshots re-taken. Board 198 rows.
+Dossier 620,648 bytes, text 31,244 bytes.
+
+Audit effect (judge criteria): criterion 2, 9 stays 9 — but the model is now more
+faithful to the snapshot's own figures: the comparables are protocols with a market
+value, not dead tokens. This is the 3rd improvement since v1.16 (v1.17 ranking
+robustness, v1.18 masthead at a glance, v1.19 dead tokens out) — the playbook's
+submit point is reached.
+
 ## v1.18 — 2026-11-24: the masthead shows the board at a glance (iteration 16)
 
 What changed, and why: the user asked us to push harder on the rank (v1.13: 75.67%,

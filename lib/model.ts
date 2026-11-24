@@ -232,11 +232,15 @@ function clampMultiple(raw: number, model: ModelConstants): number {
 /**
  * The multiples table: for every category with at least one live-token protocol, its median
  * mcap/TVL, clamped to the model's band; and the global median over all live-token protocols.
- * Live-token here means the snapshot records a token (a market cap); exchanges are left out, as
- * the Live token view leaves them out.
+ * Live-token here means the snapshot records a token with a positive market cap; exchanges
+ * are left out, as the Live token view leaves them out. Fourteen protocols record a token
+ * but a market cap of zero or less — dead tokens, Multichain among them — and a zero is not
+ * a market value, so they are not comparables: counting them would drag the global median
+ * from 0.2460 to 0.1857 and the Bridge median from 0.5567 to 0.0884 on the strength of
+ * tokens worth nothing.
  */
 export function categoryMultiples(snapshot: Snapshot, model: ModelConstants = MODEL): { byCategory: Map<string, CategoryMultiple>; global: CategoryMultiple } {
-  const live = snapshot.protocols.filter((p) => p.mcap_usd !== null && p.category !== 'CEX');
+  const live = snapshot.protocols.filter((p) => p.mcap_usd !== null && p.mcap_usd > 0 && p.category !== 'CEX');
   const byCat = new Map<string, number[]>();
   for (const p of live) {
     const key = p.category ?? '(no category)';
@@ -683,11 +687,11 @@ export function farmSteps(
   };
 }
 
-/** Every live-token protocol grouped by category, by market cap: the peers a detail view shows, so the median it states can be checked from the rows it displays. Live-token here means the snapshot records a market cap — the same filter the multiples use, since a token with no recorded cap has no ratio to show. */
+/** Every live-token protocol grouped by category, by market cap: the peers a detail view shows, so the median it states can be checked from the rows it displays. Live-token here means the snapshot records a market cap — the same filter the multiples use, since a token with no recorded cap has no ratio to show; a cap of zero or less is not a cap, so dead tokens are left out of the peers too. */
 export function categoryPeers(snapshot: Snapshot): Record<string, LiveRow[]> {
   const out: Record<string, LiveRow[]> = {};
   for (const p of snapshot.protocols
-    .filter((p) => p.mcap_usd !== null && p.category !== 'CEX')
+    .filter((p) => p.mcap_usd !== null && p.mcap_usd > 0 && p.category !== 'CEX')
     .sort((a, b) => (b.mcap_usd ?? 0) - (a.mcap_usd ?? 0) || b.tvl_usd - a.tvl_usd)) {
     const key = p.category ?? '(no category)';
     (out[key] = out[key] ?? []).push({

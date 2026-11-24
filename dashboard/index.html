@@ -97,6 +97,10 @@
     <p>Implied value = TVL &times; category multiple &times; launch odds. The category multiple is the
     median <span class="nowrap">mcap / TVL</span> of the token-bearing protocols in the same category
     (at least 5 of them, or the median over all token-bearing protocols, <span id="global-mult"></span>).
+    Only protocols whose recorded market cap is positive count as comparables: 14 protocols
+    record a token but a market cap of zero or less — dead tokens, Multichain among them — and
+    a zero is not a market value. Counting them would drag the global median from 0.2460 to
+    0.1857 and the Bridge median from 0.5567 to 0.0884 on the strength of tokens worth nothing.
     The multiple is clamped to 0.03–1.00, so no category's thin data can price a protocol at ten times
     its TVL. The launch odds are the share of the snapshot's protocols in the same age band that
     still record no token — the peers' record on whether a launch is still coming: under one year
