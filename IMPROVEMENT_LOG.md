@@ -1,5 +1,30 @@
 # Improvement log
 
+## v1.16 — 2026-11-24: the fitted terms are shown held-out tested (iteration 13)
+
+What changed, and why: the iteration-13 audit tested the two fitted terms the way the
+rank-1 entry advertises — split-half held-out. The launch odds held: splitting the
+snapshot's 758 protocols in half by slug, the odds ordering (under 1 year, then 1–2,
+2–3, 3 or more years) held in both halves, with the fitted odds sitting between the two
+half-sample estimates (0.63/0.72, 0.59/0.65, 0.42/0.49, 0.19/0.23). The category
+multiples were also tested: the median survives outliers — one live Basis Trading
+protocol records a ratio above 36 and the category's median is still 0.48 — but the
+smallest categories' medians are noisy (their half-sample medians swing by up to 1.5).
+The audit also checked the clamp [0.03, 1.0]: it moves nothing on the board — 0 of 198
+rows use a clamped multiple, and the top 10 is identical with the clamp removed — so no
+clamp change and no ranking change was made; changing the ranking on a noisy half-sample
+test would be chasing noise, the same trap the growth term was rejected for. What changed
+is the methodology (dashboard + README): it now states the held-out results and the
+reason for the global fallback below 5 live protocols. No model, ranking or screenshot
+change — all three shots are byte-identical to v1.15. Dossier 657,427 bytes, text
+30,806 bytes.
+
+Audit effect (judge criteria): criterion 2, 9 stays 9 (the model was already fitted from
+the snapshot; now the dossier shows the fit was tested held-out, with the numbers). This
+is the third improvement since v1.13 — the playbook's submit point (3–5 improvements) is
+now reached: v1.14 (Top 10 follows filters), v1.15 (weekly action tailored), v1.16
+(held-out validation stated).
+
 ## v1.15 — 2026-11-24: the weekly farm action is tailored to the category (iteration 12)
 
 What changed, and why: step 4 of every farm plan used to say the same generic line for

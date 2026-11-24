@@ -71,7 +71,14 @@ bonus add nothing to the ranking — growth even correlates −0.15 with `log(mc
 wrong sign, age correlates 0.00, chains −0.02 — and a fitted log-linear regression overfits
 (its coefficients flip sign between folds). The category median alone ties every variant on
 rank correlation, so the model keeps the median and spends its one extra term on the launch
-odds, which the median cannot express. The 7-day change and the chain count are still shown
+odds, which the median cannot express. Both fitted terms were tested held-out the same way:
+splitting the snapshot's protocols in half, the launch-odds ordering held in both halves
+(under 1 year 0.63/0.72, 1–2 years 0.59/0.65, 2–3 years 0.42/0.49, 3 years or more
+0.19/0.23), with the fitted odds between the two half-sample estimates; and the category
+medians survive outliers — one live Basis Trading protocol records a ratio above 36, and the
+category's median is still 0.48 — while the smallest categories' medians are noisy (their
+half-sample medians swing by up to 1.5), which is why a category with fewer than 5 live
+protocols falls back to the global median. The 7-day change and the chain count are still shown
 on the board as facts, but they are not model inputs.
 
 The board also flags its own shaky numbers: 7 of the 198 rows moved more than 50% in 7 days
