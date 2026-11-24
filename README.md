@@ -54,7 +54,11 @@ then six steps derived from its category, first chain, TVL and age, with concret
 times. The verdict prices gas, so no Ethereum protocol earns the top verdict: a weekly action
 there costs about $6, and even the shortest farm runs about $34 of gas against a $50–$250
 position, while the same farm on a cheap chain costs $9–$26. That is the verdict working as
-designed — the chain is part of the farm's cost. A wait is not a farm with a different label: the 11 wait rows get a monitoring plan
+designed — the chain is part of the farm's cost. The plan's other numbers are design choices,
+not fitted from the snapshot: the hold runs 60 days for a protocol under six months old, 45
+days under a year, 30 days otherwise; the capital scales with TVL ($50 under $100M, $100 to
+$1B, $150 to $5B, $250 above) so the position stays small relative to the protocol; the top
+verdict needs the whole farm's gas at or under $30. A wait is not a farm with a different label: the 11 wait rows get a monitoring plan
 instead — watch for a token or points program, the three triggers that would change the call,
 a dated re-check three months after the snapshot, what to do with a position already held,
 and a log of the decision — because a plan that says "don't lock capital here" and then tells

@@ -1,5 +1,27 @@
 # Improvement log
 
+## v1.12 — 2026-11-24: the farm plan's parameters are stated as design choices
+
+What changed, and why: the audit read the methodology end to end and found the farm plan's
+numbers unexplained anywhere: the hold (60/45/30 days by age), the capital tiers
+($50/$100/$150/$250 by TVL) and the $30 gas line for the top verdict appear in every plan
+with no account of where they come from. The methodology and the README now state them
+plainly as design choices, not fitted numbers — the hold gives a younger protocol more weeks
+of qualifying activity because its history is shorter, the capital scales with TVL so the
+position stays small relative to the protocol, and the $30 line is a round threshold above
+which gas eats a small position. The gas figures themselves are approximate ($6 a weekly
+action on Ethereum, $1–$2 elsewhere), so the verdict is labelled a call on the order of
+magnitude, not a quote.
+
+Audit effect (judge criteria): criterion 3, 9 stays 9 (the plans were already concrete and
+coherent; now their parameters are accounted for instead of unexplained). This is the fourth
+straight iteration whose audit found a real but small gap and no criterion moved — the board,
+the model, the plans, the page and the screenshots are all at 9, and the remaining work the
+audit can name is documentation. That is the playbook's stop shape: the next signal that
+matters is the judge's, not another local pass. Dossier 732,564 bytes (cap 4 MiB), text
+28,926 bytes (no cut). All three screenshots are byte-identical to v1.11, so no re-upload
+was needed.
+
 ## v1.11 — 2026-11-24: the displayed numbers are the numbers the model uses
 
 What changed, and why: the audit recomputed a row's implied value from the numbers the
