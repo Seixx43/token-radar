@@ -1,5 +1,33 @@
 # Improvement log
 
+## v1.14 — 2026-11-24: the Top 10 follows the filters (iteration 11)
+
+What changed, and why: the v1.13 rate came in at 75.67% (rank 12,467 of 18,367; 6W/4D/2L),
+down 3.09 points from v1.2's 78.75% — but the intervals overlap heavily (v1.2:
+74.01%–83.50%), so the move is judge noise; the only v1.13 change was the screenshot
+fix. The iteration-11 audit first tested the one untested value term, 7-day growth:
+across the 758 protocols the token share by growth band is 56.5% (<-20%), 58.1%
+(-20..0%), 38.6% (0..20%), 50.0% (20..50%), 0.0% (>50%, n=6), and the point-biserial
+correlation of growth with having a token is -0.051 — no usable signal, and the
+extreme band is already handled by the integrity strip. So no growth term: the v1.3
+decision stands, and the audit rejected the term instead of fitting noise. The audit
+then read the three screenshots as the judge sees them and found a real inconsistency:
+the "Top 10 at a glance" was rendered once from the whole board and never re-rendered,
+so with a filter on (watchlist only, a category, a search) it kept showing protocols
+the filtered board did not contain — in the watchlist-only shot it showed Sentora at
+rank 1, which is not on the watchlist, above a board of 40 watchlist rows. The Top 10
+now renders from the same filtered list as the board (always ordered by implied value;
+the sort control governs the board below), and its note says what it shows when a
+filter is on ("among the 40 protocols the filters show"). The board, model, plans and
+rankings are untouched (198 rows, dossier 657,477 bytes, text 30,198 bytes). Shots 2
+and 3 changed; shot 1 is byte-identical to v1.13.
+
+Audit effect (judge criteria): criterion 4, 9 stays 9 (the page was already sortable
+and filterable; now its summary section agrees with the board it introduces, which is
+what criterion 1's "screenshots and code agree" asks for). This is the first
+improvement since v1.13 — the playbook's submit point (3–5 improvements) is not
+reached yet, so v1.14 stays local until the next iterations.
+
 ## v1.13 — 2026-11-24: the detail screenshot fits the gate (the v1.12 entry failed on it)
 
 What changed, and why: the v1.12 submission (01a20ae0, commit 2d1adc7) came back from dev

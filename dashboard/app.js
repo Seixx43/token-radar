@@ -87,16 +87,35 @@
   }
 
   /* ---------- top 10 at a glance ---------- */
-  document.getElementById('top10-rows').innerHTML = R.rows.slice(0, 10).map(function (r) {
-    var badge = watch[r.slug] ? '<span class="badge">watchlist</span>' : '';
-    return '<tr data-slug="' + esc(r.slug) + '">' +
-      '<td class="num">' + r.rank + '</td>' +
-      '<td><span class="pname">' + esc(r.name) + '</span>' + badge + '</td>' +
-      '<td>' + esc(cat(r.category)) + '</td>' +
-      '<td class="num"><strong>' + usd(r.implied_value_usd) + '</strong></td>' +
-      '<td>' + verdictBadge(r.verdict) + '</td>' +
-      '</tr>';
-  }).join('');
+  /* It follows the same filters as the board below: the ten largest implied values
+     among the rows the filters show. It used to be rendered once from the whole
+     board, so with a filter on (watchlist only, a category, a search) it kept
+     showing protocols the filtered board did not contain — the section disagreed
+     with the board it introduces. The sort control governs the board below; the
+     Top 10 is always by implied value, which is what the section promises. */
+  var top10RowsEl = document.getElementById('top10-rows');
+  var top10NoteEl = document.getElementById('top10-note');
+  function renderTop10(list) {
+    var top = list.slice().sort(function (a, b) { return b.implied_value_usd - a.implied_value_usd; }).slice(0, 10);
+    if (top.length === 0) {
+      top10RowsEl.innerHTML = '<tr><td colspan="5">No protocols match the current filters.</td></tr>';
+    } else {
+      top10RowsEl.innerHTML = top.map(function (r) {
+        var badge = watch[r.slug] ? '<span class="badge">watchlist</span>' : '';
+        return '<tr data-slug="' + esc(r.slug) + '">' +
+          '<td class="num">' + r.rank + '</td>' +
+          '<td><span class="pname">' + esc(r.name) + '</span>' + badge + '</td>' +
+          '<td>' + esc(cat(r.category)) + '</td>' +
+          '<td class="num"><strong>' + usd(r.implied_value_usd) + '</strong></td>' +
+          '<td>' + verdictBadge(r.verdict) + '</td>' +
+          '</tr>';
+      }).join('');
+    }
+    var filteredOn = qEl.value.trim() !== '' || catEl.value !== '' || chainEl.value !== '' || watchEl.checked;
+    top10NoteEl.textContent = filteredOn
+      ? 'The ten largest implied values among the ' + list.length + ' protocols the filters show, with the farm call for each.'
+      : 'The ten largest implied values on the board, with the farm call for each. The full ranked board follows below.';
+  }
   document.getElementById('top10-table').addEventListener('click', function (ev) {
     var tr = ev.target.closest('tr[data-slug]');
     if (!tr) return;
@@ -129,6 +148,7 @@
 
   function render() {
     var list = filtered();
+    renderTop10(list);
     countEl.textContent = list.length + ' of ' + R.rows.length + ' protocols shown' +
       (watchEl.checked ? ' (watchlist only)' : '') + '.';
     if (list.length === 0) {
