@@ -1,5 +1,25 @@
 # Improvement log
 
+## v1.13 — 2026-11-24: the detail screenshot fits the gate (the v1.12 entry failed on it)
+
+What changed, and why: the v1.12 submission (01a20ae0, commit 2d1adc7) came back from dev
+grading with no judge rate: the gate's "screenshots" row earned 0 of 1, so the entry is
+prize-ineligible and, because only the latest submission per handle stays on the board,
+the v1.2 rate of 78.75% is gone too. The breakdown showed every other gate row passing
+(board, sorting, coverage, farm steps, dashboard files, dossier). The cause was shot 2:
+shots.py took it as an ELEMENT screenshot of the whole #detail panel, which is taller
+than the viewport, so 2-detail.png came out 1140x1631 — its long side (1631) breaks the
+gate's cap of 1440. The shot is now a viewport screenshot (1440x900) after scrolling the
+detail into view: the Shift DeFi header, the red integrity warning ("TVL rose 4448% in 7
+days"), the model built step by step and the farm plan all show, and the image is more
+legible at small size than the tall capture. Shots 1 and 3 are byte-identical to v1.12.
+The board, model, plans and dashboard are untouched (198 rows, dossier 655,512 bytes,
+text 28,853 bytes).
+
+Audit effect (judge criteria): criterion 1, 9 stays 9 on the page itself — but the entry
+could not be judged at all, so this is the fix that unblocks the judge: gate 6/7 → 7/7.
+Resubmitted the same morning (quota: 3rd entry of the day, 3 of 40 used).
+
 ## v1.12 — 2026-11-24: the farm plan's parameters are stated as design choices
 
 What changed, and why: the audit read the methodology end to end and found the farm plan's
