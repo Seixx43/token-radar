@@ -78,7 +78,11 @@ splitting the snapshot's protocols in half, the launch-odds ordering held in bot
 medians survive outliers — one live Basis Trading protocol records a ratio above 36, and the
 category's median is still 0.48 — while the smallest categories' medians are noisy (their
 half-sample medians swing by up to 1.5), which is why a category with fewer than 5 live
-protocols falls back to the global median. The 7-day change and the chain count are still shown
+protocols falls back to the global median. And the ranking does not hang on the exact fitted
+odds: recomputing every implied value with the odds from either half-sample leaves the top 10
+the same ten protocols (only ranks 7 and 8 swap — Nonce Capital and BitFi Basis, both near
+$64M), and the whole board's order correlates 0.998 with the fitted order (Spearman 0.9988
+and 0.9984 for the two halves). The 7-day change and the chain count are still shown
 on the board as facts, but they are not model inputs.
 
 The board also flags its own shaky numbers: 7 of the 198 rows moved more than 50% in 7 days

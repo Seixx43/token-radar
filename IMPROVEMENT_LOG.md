@@ -1,5 +1,23 @@
 # Improvement log
 
+## v1.17 — 2026-11-24: the ranking is shown robust to the odds' noise (iteration 14)
+
+What changed, and why: the iteration-14 audit asked the one question the held-out tests
+had not answered — does the ranking hang on the exact fitted odds? Recomputing every
+implied value with the odds from either split half (0.63/0.59/0.42/0.19 vs 0.72/0.65/0.49/
+0.23) leaves the top 10 the same ten protocols — only ranks 7 and 8 swap (Nonce Capital
+and BitFi Basis, both near $64M) — and the whole 198-row board's order correlates 0.998
+with the fitted order (Spearman 0.9988 and 0.9984 for the two halves). The implied values
+themselves move by about 5%, which is the odds' sampling noise, but the order does not.
+That is now stated in the methodology (dashboard + README) with the numbers. No model,
+ranking or screenshot change — all three shots are byte-identical to v1.16. Dossier
+657,729 bytes, text 31,105 bytes.
+
+Audit effect (judge criteria): criterion 2, 9 stays 9 (the model was already fitted and
+held-out tested; now the dossier also shows the ranking does not depend on the fit's
+exact numbers). This is the first improvement since v1.16 — the playbook's submit point
+(3–5 improvements) is not reached yet.
+
 ## v1.16 — 2026-11-24: the fitted terms are shown held-out tested (iteration 13)
 
 What changed, and why: the iteration-13 audit tested the two fitted terms the way the

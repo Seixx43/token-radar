@@ -113,7 +113,10 @@
     Trading protocol records a market-cap-to-TVL ratio above 36, and the category's median is
     still 0.48. The smallest categories' medians are noisy (their half-sample medians swing by
     up to 1.5), which is why a category with fewer than 5 live protocols falls back to the
-    global median.</p>
+    global median. And the ranking does not hang on the exact fitted odds: recomputing every
+    implied value with the odds from either half-sample leaves the top 10 the same ten
+    protocols (only ranks 7 and 8 swap, two rows both near $64M), and the whole board's order
+    correlates 0.998 with the fitted order.</p>
     <p>What this does <em>not</em> do: it does not predict whether or when a token is issued, and it
     does not use any name list — the same formula scores every row. Market cap in the snapshot is
     circulating market cap, not fully diluted value, so the implied value is a circulating-cap
