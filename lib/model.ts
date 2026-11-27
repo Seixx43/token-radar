@@ -1,4 +1,4 @@
-// The token radar's model, version radar-3: one snapshot of the protocol universe in, one
+// The token radar's model, version radar-4: one snapshot of the protocol universe in, one
 // ranked board out.
 //
 // The board ranks EVERY rankable protocol in the snapshot: pre-token, not an exchange, not
@@ -78,7 +78,7 @@ export const MODEL: ModelConstants = {
 };
 
 /** The model's version label: the dashboard names it. */
-export const MODEL_VERSION = 'radar-3';
+export const MODEL_VERSION = 'radar-4';
 
 /** A 7-day TVL move bigger than this is flagged: the implied value rests on a TVL that just jumped or collapsed. */
 export const INTEGRITY_MOVE_PCT = 50;

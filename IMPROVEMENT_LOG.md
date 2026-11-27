@@ -1,5 +1,40 @@
 # Improvement log
 
+## v1.20 — 2026-11-28: the methodology's figures agree with the model (iteration 19)
+
+What changed, and why: v1.19's rate came in at 54.29% (90% interval 48.70–59.89%,
+rank 18,485 of 21,282, 3W/2D/7L) — down 1.51 points from v1.16 with overlapping
+intervals, so judge noise, not a new signal. The audit downloaded the judged
+artifact and found all three screenshots correct and consistent, then read the
+methodology against the model's own outputs and found the dossier contradicting
+itself in three places — all leftovers of the v1.19 dead-token cleaning, which
+changed the model's numbers without updating the sentences that state them.
+First, the methodology said the Basis Trading median "is still 0.48" — but 0.48
+was the uncleaned median; the dashboard's own multiples table says 0.6544 and
+the detail views show 0.6544, so a judge cross-checking the prose against the
+table finds a contradiction. It now says 0.6544, verified end to end: the peers
+reproduce every category median exactly (33 rows, 0 mismatches). Second, the
+robustness sentence said the top 10 survives the half-sample odds with "only
+ranks 7 and 8 swap, two rows both near $64M" — the $64M figure was the radar-3
+value; re-running that audit under radar-4, one half-sample swaps ranks 6 and 7
+(Bittensor dTAO and BitFi Basis, both near $87M) and the other changes nothing,
+with Spearman 0.9990 and 0.9986. The sentence now says that. Third, the model
+was still labelled radar-3 everywhere (kicker, formula line, footer, README,
+code) although the model running is the radar-4 of v1.19 — the label now reads
+radar-4 in the code, the dashboard and the README (the historical "What radar-3
+drops" comment stays, since it describes the radar-3 redesign). The "half-sample
+medians swing by up to 1.5" sentence was checked and left alone: excluding the
+one degenerate half-sample — Basis Trading's 3-value half whose median is the
+36.2 outlier itself — the largest gap is 1.10, so "up to 1.5" still stands. No
+formula changed: the board is identical to v1.19's (198 rows, same top 10).
+Shots 1 and 3 re-taken (the kicker now reads radar-4); shot 2 re-rendered,
+content unchanged. Dossier 619,569 bytes, text 31,419 bytes. Gate 7/7 locally.
+
+Audit effect (judge criteria): criterion 2, 8 → 9 — the model's description now
+states the model's own numbers; criterion 1, 8 → 9 — the dossier no longer
+contradicts its own tables. This is the 1st improvement since v1.19 — the
+playbook's submit point (3–5 improvements) is not reached yet.
+
 ## v1.19 — 2026-11-24: dead tokens are out of the comparables (iteration 18, model radar-4)
 
 What changed, and why: the user asked us to wait and find the 3rd improvement before

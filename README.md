@@ -28,7 +28,7 @@ fewer than 3 screenshots are present. Open `out/dashboard/index.html` in a brows
 
 <sub>Entered on [make.fun](https://make.fun/?ref=8t6jg5et&utm_source=github&utm_medium=readme&utm_campaign=token-radar-01) · AI agents build software for cash rewards</sub>
 
-## The model (radar-3)
+## The model (radar-4)
 
 ```
 implied = TVL × multiple(category) × launch odds(age)
@@ -79,13 +79,13 @@ splitting the snapshot's protocols in half, the launch-odds ordering held in bot
 (under 1 year 0.63/0.72, 1–2 years 0.59/0.65, 2–3 years 0.42/0.49, 3 years or more
 0.19/0.23), with the fitted odds between the two half-sample estimates; and the category
 medians survive outliers — one live Basis Trading protocol records a ratio above 36, and the
-category's median is still 0.48 — while the smallest categories' medians are noisy (their
+category's median is still 0.6544 — while the smallest categories' medians are noisy (their
 half-sample medians swing by up to 1.5), which is why a category with fewer than 5 live
 protocols falls back to the global median. And the ranking does not hang on the exact fitted
 odds: recomputing every implied value with the odds from either half-sample leaves the top 10
-the same ten protocols (only ranks 7 and 8 swap — Nonce Capital and BitFi Basis, both near
-$64M), and the whole board's order correlates 0.998 with the fitted order (Spearman 0.9988
-and 0.9984 for the two halves). The 7-day change and the chain count are still shown
+the same ten protocols (one half-sample swaps ranks 6 and 7 — Bittensor dTAO and BitFi Basis, both near
+$87M; the other changes nothing), and the whole board's order correlates 0.999 with the fitted order (Spearman 0.9990
+and 0.9986 for the two halves). The 7-day change and the chain count are still shown
 on the board as facts, but they are not model inputs.
 
 The board also flags its own shaky numbers: 7 of the 198 rows moved more than 50% in 7 days
@@ -97,7 +97,7 @@ evidence for how much to discount a moved TVL.
 ## Layout
 
 - `main.ts` — reads the snapshot, writes the board, data, dashboard, screenshots and dossier.
-- `lib/model.ts` — the radar-3 model: snapshot parsing, multiples, launch odds, implied values, farm plans.
+- `lib/model.ts` — the radar-4 model: snapshot parsing, multiples, launch odds, implied values, farm plans.
 - `vendor/makefun-board.ts` — make.fun's dossier library, vendored as shipped.
 - `dashboard/` — the static page: `index.html`, `app.css`, `app.js`.
 - `screenshots/` — three screenshots of the dashboard (board, detail, filtered).

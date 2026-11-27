@@ -9,7 +9,7 @@
 <body>
 <header class="masthead">
   <div class="wrap">
-    <p class="kicker">Token Radar &middot; model radar-3</p>
+    <p class="kicker">Token Radar &middot; model radar-4</p>
     <h1>Which pre-token protocol would be worth the most if it launched a token today?</h1>
     <p class="lede">Every protocol below records no token in the DefiLlama snapshot. Each one is scored by its
     own figures — TVL, the median market-cap-to-TVL ratio of the token-bearing protocols in its
@@ -111,12 +111,12 @@
     year, then 1–2, 2–3, 3 or more years) held in both halves, with the fitted odds sitting
     between the two half-sample estimates; and the medians survive outliers — one live Basis
     Trading protocol records a market-cap-to-TVL ratio above 36, and the category's median is
-    still 0.48. The smallest categories' medians are noisy (their half-sample medians swing by
+    still 0.6544. The smallest categories' medians are noisy (their half-sample medians swing by
     up to 1.5), which is why a category with fewer than 5 live protocols falls back to the
     global median. And the ranking does not hang on the exact fitted odds: recomputing every
     implied value with the odds from either half-sample leaves the top 10 the same ten
-    protocols (only ranks 7 and 8 swap, two rows both near $64M), and the whole board's order
-    correlates 0.998 with the fitted order.</p>
+    protocols (one half-sample swaps ranks 6 and 7, two rows both near $87M; the other changes nothing), and the whole board's order
+    correlates 0.999 with the fitted order (Spearman 0.9990 and 0.9986 for the two halves).</p>
     <p>What this does <em>not</em> do: it does not predict whether or when a token is issued, and it
     does not use any name list — the same formula scores every row. Market cap in the snapshot is
     circulating market cap, not fully diluted value, so the implied value is a circulating-cap
@@ -176,7 +176,7 @@
 
 <footer class="wrap">
   <p id="source"></p>
-  <p>Token Radar, model radar-3. Data: a frozen DefiLlama snapshot. Implied values are this
+  <p>Token Radar, model radar-4. Data: a frozen DefiLlama snapshot. Implied values are this
   dashboard's own estimates, not investment advice and not a prediction of a token launch.</p>
 </footer>
 <noscript><p class="noscript">This dashboard needs JavaScript: the board is rendered from the data file beside it.</p></noscript>
